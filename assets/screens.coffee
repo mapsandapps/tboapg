@@ -11,8 +11,9 @@ Game.Screen.startScreen =
     return
 
   render: (display) ->
-    display.drawText(1,1, "%c{yellow}CoffeeScript Roguelike")
-    display.drawText(1,2, "Press [Enter] to start!")
+    display.drawText(1,1, "%c{yellow}Codename: The Best of All Possible Games")
+    display.drawText(1,3, "%c{yellow}A CoffeeScript Roguelike by Mollie Taylor")
+    display.drawText(1,5, "Press [Enter] to start!")
     return
 
   handleInput: (inputType, inputData) ->

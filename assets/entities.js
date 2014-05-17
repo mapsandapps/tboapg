@@ -30,6 +30,10 @@ Game.Mixins.Moveable = {
       } else {
         return false;
       }
+    } else if (tile === Game.Tile.stairsDownTile || tile === Game.Tile.stairsUpTile) {
+      Game.sendMessage(this, "Press 'u' to go upstairs or 'd' to go downstairs.");
+      this.setPosition(x, y, z);
+      return true;
     } else if (tile.isWalkable()) {
       this.setPosition(x, y, z);
       return true;

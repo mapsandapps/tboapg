@@ -19,27 +19,7 @@
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-2.1.0.min.js"></script>
 
-    <style type="text/css">      
-      body {
-        font-family: 'FontAwesome';
-        margin: 5px;
-        background-color: black;
-        color: white;
-      }
-
-      #game {
-        border: 1px white solid;
-        display: inline-block;
-      }
-
-      #credits {
-        cursor: pointer;
-      }
-
-      #info {
-        display: none;
-      }
-    </style>
+    <link rel="stylesheet" type="text/css" href="style.css">
 
     <title>TBOAPG by Mollie Taylor</title>
 
@@ -55,39 +35,42 @@
     </script>
   </head>
   <body>
-    <div id="game"></div>
+    <div id="container">
+      <div id="game"></div>
 
 
 
 
-    <script type="text/javascript" src="assets/game.js"></script>
-    <script type="text/javascript" src="assets/screens.js"></script>
-    <script type="text/javascript" src="assets/glyph.js"></script>
-    <script type="text/javascript" src="assets/tile.js"></script>
-    <script type="text/javascript" src="assets/builder.js"></script>
-    <script type="text/javascript" src="assets/map.js"></script>
-    <script type="text/javascript" src="assets/entity.js"></script>
-    <script type="text/javascript" src="assets/entities.js"></script>
+      <script type="text/javascript" src="assets/game.js"></script>
+      <script type="text/javascript" src="assets/screens.js"></script>
+      <script type="text/javascript" src="assets/glyph.js"></script>
+      <script type="text/javascript" src="assets/tile.js"></script>
+      <script type="text/javascript" src="assets/builder.js"></script>
+      <script type="text/javascript" src="assets/map.js"></script>
+      <script type="text/javascript" src="assets/entity.js"></script>
+      <script type="text/javascript" src="assets/entities.js"></script>
 
-
-<!--     <div>&#xf06a; &#xf029; &#xf007;&#xf05b;&#xf057;&#xf05c;&#xf;</div> -->
-<!-- up & down -->
-      <!-- <div>&#xf01a;&#xf01b;&#xf062;&#xf063;&#xf077;&#xf078;</div> -->
-    <div id="credits">
-      &#xf05a;</a>
+  <!--     <div>&#xf06a; &#xf029; &#xf007;&#xf05b;&#xf057;&#xf05c;&#xf132;&#xf;</div> -->
+  <!-- up & down -->
+        <!-- <div>&#xf01a;&#xf01b;&#xf062;&#xf063;&#xf077;&#xf078;</div> -->
       <div id="info">
-        Credits:
-        <ul>
-          <li>Game by <a href="http://proximityviz.com/">Proximity Viz</a></li>
-          <li><a href="http://fortawesome.github.io/Font-Awesome/">Font Awesome</a></li>
-          <li>Based on <a href="http://www.codingcookies.com/2013/04/01/building-a-roguelike-in-javascript-part-1/">this tutorial</a></li>
-        </ul>
+        &#xf05a;</a>
+        <div id="credits">
+          <br>
+          Credits:
+          <ul>
+            <li>Game by <a href="http://mollietaylor.com/">Mollie Taylor</a></li>
+            <li>Built using <a href="http://ondras.github.io/rot.js/hp/">rot.js</a></li>
+            <li><a href="http://fortawesome.github.io/Font-Awesome/">Font Awesome</a></li>
+            <li>Based on <a href="http://www.codingcookies.com/2013/04/01/building-a-roguelike-in-javascript-part-1/">this tutorial</a></li>
+          </ul>
+        </div>
       </div>
     </div>
 
     <script type="text/javascript">
-      $('#credits').click(function() {
-        $('#info').toggle();
+      $('#info').click(function() {
+        $('#credits').toggle();
       });
     </script>
   </body>

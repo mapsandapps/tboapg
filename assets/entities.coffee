@@ -33,15 +33,16 @@ Game.Mixins.Moveable =
       else
         # can't move to the tile
         return false 
+    # check if tile is stairs, if so, let player know what to do
+    else if tile is Game.Tile.stairsDownTile or tile is Game.Tile.stairsUpTile
+      Game.sendMessage this, "Press 'u' to go upstairs or 'd' to go downstairs."
+      @setPosition(x, y, z)
+      return true
     # check if we can walk on the tile
     else if tile.isWalkable()
       # update the entity's position
       @setPosition(x, y, z)
       return true
-    # # check if the tile is diggable and if so, try to dig
-    # else if tile.isDiggable()
-    #   map.dig x, y, z
-    #   return true
     false
 
 # main player's actor mixin

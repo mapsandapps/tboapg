@@ -26,7 +26,6 @@ Game.Map = function(tiles, player) {
     });
     z++;
   }
-  console.log(downLoc);
   z = 1;
   while (z < this._depth) {
     upPos = this.getRandomFloorPosition(z);
@@ -38,7 +37,6 @@ Game.Map = function(tiles, player) {
     });
     z++;
   }
-  console.log(upLoc);
   z = 0;
   while (z < this._depth) {
     i = 0;

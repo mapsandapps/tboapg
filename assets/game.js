@@ -4,13 +4,14 @@ var Game;
 Game = {
   _display: null,
   _currentScreen: null,
-  _screenWidth: 60,
-  _screenHeight: 30,
+  _screenWidth: 70,
+  _screenHeight: 40,
   init: function() {
     var bindEventToScreen, game;
     this._display = new ROT.Display({
       width: this._screenWidth,
       height: this._screenHeight + 1,
+      fontSize: 15,
       fontFamily: 'FontAwesome'
     });
     game = this;

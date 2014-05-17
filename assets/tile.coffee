@@ -3,7 +3,6 @@ Game.Tile = (properties) ->
   # call glyph constructor with our properties
   Game.Glyph.call this, properties
   @_isWalkable = properties['isWalkable'] or false
-  # @_isDiggable = properties['isDiggable'] or false
   return
 
 # make tiles inherit the functionality from glyphs
@@ -12,9 +11,6 @@ Game.Tile.extend(Game.Glyph)
 Game.Tile::isWalkable = ->
   @_isWalkable
 
-# Game.Tile::isDiggable = ->
-#   @_isDiggable
-
 Game.Tile.nullTile = new Game.Tile({})
 Game.Tile.floorTile = new Game.Tile(
   background: 'indigo'
@@ -22,18 +18,17 @@ Game.Tile.floorTile = new Game.Tile(
 )
 Game.Tile.wallTile = new Game.Tile(
   background: 'black'
-  # isDiggable: true
 )
 
 Game.Tile.stairsUpTile = new Game.Tile(
   character: ''
-  foreground: 'white'
+  foreground: 'goldenrod'
   isWalkable: true
 )
 
 Game.Tile.stairsDownTile = new Game.Tile(
   character: ''
-  foreground: 'white'
+  foreground: 'goldenrod'
   isWalkable: true
 )
 

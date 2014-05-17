@@ -28,7 +28,6 @@ Game.Map = (tiles, player) ->
       y: downPos.y
     )
     z++
-  console.log downLoc
 
   z = 1
   while z < @_depth
@@ -40,7 +39,6 @@ Game.Map = (tiles, player) ->
       y: upPos.y
     )
     z++
-  console.log upLoc
   # now i just need player to move to the right location when changing floors
 
   # add random fungi
@@ -72,11 +70,6 @@ Game.Map::getTile = (x, y, z) ->
     Game.Tile.nullTile
   else
     @_tiles[z][x][y] or Game.Tile.nullTile
-
-# Game.Map::dig = (x, y, z) ->
-#   # if the tile is diggable, update it to a floor
-#   if @getTile(x, y, z).isDiggable()
-#     @_tiles[z][x][y] = Game.Tile.floorTile
 
 Game.Map::isEmptyFloor = (x, y, z) ->
   # check if the tile is floor and has no entity

@@ -1,13 +1,14 @@
 Game = 
   _display: null
   _currentScreen: null
-  _screenWidth: 60
-  _screenHeight: 30
+  _screenWidth: 70
+  _screenHeight: 40
   init: ->
 
     @_display = new ROT.Display(
       width: @_screenWidth
       height: @_screenHeight + 1
+      fontSize: 15
       fontFamily: 'FontAwesome'
     )
 

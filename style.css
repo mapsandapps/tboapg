@@ -1,0 +1,30 @@
+
+body {
+  font-family: 'FontAwesome';
+  margin: 5px;
+  background-color: black;
+  color: white;
+  width: 98%;
+}
+
+#container {
+  width: 1052px;
+  margin: 0 auto;
+}
+
+#game {
+  display: inline-block;
+  border: 1px white solid;
+}
+
+#info {
+  cursor: pointer;
+}
+
+#credits {
+  display: none;
+}
+
+a {
+  color: 'Indigo';
+}
