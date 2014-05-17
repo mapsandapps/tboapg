@@ -8,16 +8,18 @@ Game.Mixins.Moveable =
     map = @getMap()
     # must use starting z
     tile = map.getTile(x, y, @getZ())
+    currentTile = map.getTile(@getX(), @getY(), @getZ())
     target = map.getEntityAt(x, y, @getZ())
     # if our z level changed, check if we are on stair
     if z < @getZ()
-      unless tile is Game.Tile.stairsUpTile
+      unless currentTile is Game.Tile.stairsUpTile
         Game.sendMessage this, "You can't go up here!"
       else
         Game.sendMessage this, "You ascend to level %d!", [z + 1]
         @setPosition x, y, z
+
     else if z > @getZ()
-      unless tile is Game.Tile.stairsDownTile
+      unless currentTile is Game.Tile.stairsDownTile
         Game.sendMessage this, "You can't go down here!"
       else
         @setPosition(x, y, z)
@@ -105,7 +107,7 @@ Game.Mixins.Destructible =
     @_hp -= damage
     overkill = 0 - @_hp
     if overkill > 0
-      overkillMessage = 'Overkill: ' + overkill + ' damage!' 
+      overkillMessage = '%c{red}Overkill: ' + overkill + ' damage!' 
     else
       overkillMessage = ''
     # if 0 or less HP, remove from map

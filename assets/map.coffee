@@ -1,3 +1,5 @@
+downLoc = []
+upLoc = []
 Game.Map = (tiles, player) ->
   @_tiles = tiles;
   # cache width & height based on length of 
@@ -7,11 +9,40 @@ Game.Map = (tiles, player) ->
   @_height = tiles[0][0].length
   # create a list that will hold the entities
   @_entities = []
+
   # create the engine and scheduler
   @_scheduler = new ROT.Scheduler.Simple()
   @_engine = new ROT.Engine(@_scheduler)
+
   # add the player
   @addEntityAtRandomPosition player, 0
+
+  # add random stairs
+  z = 0
+  while z < @_depth - 1
+    downPos = @getRandomFloorPosition z
+    @_tiles[z][downPos.x][downPos.y] = Game.Tile.stairsDownTile
+    downLoc.push(
+      z: z
+      x: downPos.x
+      y: downPos.y
+    )
+    z++
+  console.log downLoc
+
+  z = 1
+  while z < @_depth
+    upPos = @getRandomFloorPosition z
+    @_tiles[z][upPos.x][upPos.y] = Game.Tile.stairsUpTile
+    upLoc.push(
+      z: z
+      x: upPos.x
+      y: upPos.y
+    )
+    z++
+  console.log upLoc
+  # now i just need player to move to the right location when changing floors
+
   # add random fungi
   z = 0
   while z < @_depth
@@ -21,6 +52,7 @@ Game.Map = (tiles, player) ->
       i++
     z++
   return
+
 
 Game.Map::getWidth = ->
   @_width

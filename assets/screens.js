@@ -76,7 +76,7 @@ Game.Screen.playScreen = {
     display.drawText(0, screenHeight, stats);
   },
   handleInput: function(inputType, inputData) {
-    var keyChar;
+    var currentZ, newZ;
     if (inputType === 'keydown') {
       if (inputData.keyCode === ROT.VK_RETURN) {
         Game.switchScreen(Game.Screen.winScreen);
@@ -91,21 +91,18 @@ Game.Screen.playScreen = {
           this.move(0, -1, 0);
         } else if (inputData.keyCode === ROT.VK_DOWN) {
           this.move(0, 1, 0);
+        } else if (inputData.keyCode === ROT.VK_D) {
+          currentZ = this._player.getZ();
+          this._player.tryMove(upLoc[currentZ].x, upLoc[currentZ].y, upLoc[currentZ].z, this._map);
+          console.log(upLoc);
+        } else if (inputData.keyCode === ROT.VK_U) {
+          newZ = this._player.getZ() - 1;
+          this._player.tryMove(downLoc[newZ].x, downLoc[newZ].y, downLoc[newZ].z, this._map);
         } else {
           return;
         }
         this._map.getEngine().unlock();
       }
-    } else if (inputType === 'keypress') {
-      keyChar = String.fromCharCode(inputData.charCode);
-      if (keyChar === '>') {
-        this.move(0, 0, 1);
-      } else if (keyChar === '<') {
-        this.move(0, 0, -1);
-      } else {
-        return;
-      }
-      this._map.getEngine().unlock();
     }
   },
   move: function(dX, dY, dZ) {

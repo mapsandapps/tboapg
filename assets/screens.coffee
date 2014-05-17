@@ -130,20 +130,17 @@ Game.Screen.playScreen =
           @move 0, -1, 0
         else if inputData.keyCode is ROT.VK_DOWN
           @move 0, 1, 0
+        else if inputData.keyCode is ROT.VK_D
+          currentZ = @_player.getZ()
+          @_player.tryMove upLoc[currentZ].x, upLoc[currentZ].y, upLoc[currentZ].z, @_map
+          console.log upLoc
+        else if inputData.keyCode is ROT.VK_U
+          newZ = @_player.getZ() - 1
+          @_player.tryMove downLoc[newZ].x, downLoc[newZ].y, downLoc[newZ].z, @_map
         else # not a valid key
           return
         # unlock the engine
         @_map.getEngine().unlock()
-    else if inputType is 'keypress'
-      keyChar = String.fromCharCode(inputData.charCode)
-      if keyChar is '>'
-        @move 0, 0, 1
-      else if keyChar is '<'
-        @move 0, 0, -1
-      else # not a valid key
-        return
-      # unlock the engine
-      @_map.getEngine().unlock()
     return
 
   move: (dX, dY, dZ) ->

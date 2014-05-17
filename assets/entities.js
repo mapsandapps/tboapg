@@ -4,19 +4,20 @@ Game.Mixins = {};
 Game.Mixins.Moveable = {
   name: 'Moveable',
   tryMove: function(x, y, z, map) {
-    var target, tile;
+    var currentTile, target, tile;
     map = this.getMap();
     tile = map.getTile(x, y, this.getZ());
+    currentTile = map.getTile(this.getX(), this.getY(), this.getZ());
     target = map.getEntityAt(x, y, this.getZ());
     if (z < this.getZ()) {
-      if (tile !== Game.Tile.stairsUpTile) {
+      if (currentTile !== Game.Tile.stairsUpTile) {
         Game.sendMessage(this, "You can't go up here!");
       } else {
         Game.sendMessage(this, "You ascend to level %d!", [z + 1]);
         this.setPosition(x, y, z);
       }
     } else if (z > this.getZ()) {
-      if (tile !== Game.Tile.stairsDownTile) {
+      if (currentTile !== Game.Tile.stairsDownTile) {
         Game.sendMessage(this, "You can't go down here!");
       } else {
         this.setPosition(x, y, z);
@@ -97,7 +98,7 @@ Game.Mixins.Destructible = {
     this._hp -= damage;
     overkill = 0 - this._hp;
     if (overkill > 0) {
-      overkillMessage = 'Overkill: ' + overkill + ' damage!';
+      overkillMessage = '%c{red}Overkill: ' + overkill + ' damage!';
     } else {
       overkillMessage = '';
     }
