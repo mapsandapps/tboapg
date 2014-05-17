@@ -7,7 +7,7 @@ Game =
 
     @_display = new ROT.Display(
       width: @_screenWidth
-      height: @_screenHeight
+      height: @_screenHeight + 1
       fontFamily: 'FontAwesome'
     )
 

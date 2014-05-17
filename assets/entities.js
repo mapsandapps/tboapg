@@ -8,7 +8,12 @@ Game.Mixins.Moveable = {
     tile = map.getTile(x, y);
     target = map.getEntityAt(x, y);
     if (target) {
-      return false;
+      if (this.hasMixin('Attacker')) {
+        this.attack(target);
+        return true;
+      } else {
+        return false;
+      }
     } else if (tile.isWalkable()) {
       this._x = x;
       this._y = y;
@@ -26,7 +31,8 @@ Game.Mixins.PlayerActor = {
   groupName: 'Actor',
   act: function() {
     Game.refresh();
-    return this.getMap().getEngine().lock();
+    this.getMap().getEngine().lock();
+    this.clearMessages();
   }
 };
 
@@ -36,14 +42,114 @@ Game.Mixins.FungusActor = {
   act: function() {}
 };
 
+Game.Mixins.Attacker = {
+  name: 'Attacker',
+  groupName: 'Attacker',
+  init: function(template) {
+    this._attackValue = template['attackValue'] || 1;
+  },
+  getAttackValue: function() {
+    return this._attackValue;
+  },
+  attack: function(target) {
+    var attack, damage, defense, max;
+    if (target.hasMixin('Destructible')) {
+      attack = this.getAttackValue();
+      defense = target.getDefenseValue();
+      max = Math.max(0, attack - defense);
+      damage = 1 + Math.floor(Math.random() * max);
+      Game.sendMessage(this, 'You strike the %s for %d damage!', [target.getName(), damage]);
+      Game.sendMessage(target, 'The %s strikes you for %d damage!', [this.getName(), damage]);
+      target.takeDamage(this, damage);
+    }
+  }
+};
+
+Game.Mixins.Destructible = {
+  name: 'Destructible',
+  init: function(template) {
+    this._maxHp = template['maxHp'] || 10;
+    this._hp = template['hp'] || this._maxHp;
+    this._defenseValue = template['defenseValue'] || 0;
+  },
+  getDefenseValue: function() {
+    return this._defenseValue;
+  },
+  getHp: function() {
+    return this._hp;
+  },
+  getMaxHp: function() {
+    return this._maxHp;
+  },
+  takeDamage: function(attacker, damage) {
+    var overkill, overkillMessage;
+    this._hp -= damage;
+    overkill = 0 - this._hp;
+    if (overkill > 0) {
+      overkillMessage = 'Overkill: ' + overkill + ' damage!';
+    } else {
+      overkillMessage = '';
+    }
+    if (this._hp <= 0) {
+      Game.sendMessage(attacker, 'You kill the %s! %s', [this.getName(), overkillMessage]);
+      Game.sendMessage(this, 'You die!', [0 - this._hp, overkillMessage]);
+      this.getMap().removeEntity(this);
+    }
+  }
+};
+
+Game.Mixins.MessageRecipient = {
+  name: 'MessageRecipient',
+  init: function(template) {
+    this._messages = [];
+  },
+  receiveMessage: function(message) {
+    this._messages.push(message);
+  },
+  getMessages: function() {
+    return this._messages;
+  },
+  clearMessages: function() {
+    this._messages = [];
+  }
+};
+
+Game.sendMessage = function(recipient, message, args) {
+  if (recipient.hasMixin(Game.Mixins.MessageRecipient)) {
+    if (args) {
+      message = vsprintf(message, args);
+    }
+    recipient.receiveMessage(message);
+  }
+};
+
+Game.sendMessageNearby = function(map, centerX, centerY, message, args) {
+  var entities, i;
+  if (args) {
+    message = vsprintf(message, args);
+  }
+  entities = map.getEntitiesWithinRadius(centerX, centerY, 5);
+  i = 0;
+  while (i < entities.length) {
+    if (entities[i].hasMixin(Game.Mixins.MessageRecipient)) {
+      entities[i].receiveMessage(message);
+    }
+    i++;
+  }
+};
+
 Game.PlayerTemplate = {
   character: '',
   foreground: 'white',
-  mixins: [Game.Mixins.Moveable, Game.Mixins.PlayerActor]
+  maxHp: 40,
+  attackValue: 10,
+  mixins: [Game.Mixins.Moveable, Game.Mixins.PlayerActor, Game.Mixins.Attacker, Game.Mixins.Destructible, Game.Mixins.MessageRecipient]
 };
 
 Game.FungusTemplate = {
+  name: 'fungus',
   character: 'F',
   foreground: 'green',
-  mixins: [Game.Mixins.FungusActor]
+  maxHp: 10,
+  mixins: [Game.Mixins.FungusActor, Game.Mixins.Destructible]
 };

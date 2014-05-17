@@ -41,7 +41,7 @@ Game.Entity::hasMixin = (obj) ->
   if typeof obj is 'object'
     @_attachedMixins[obj.name]
   else
-    @_attachedMixins[name] or @_attachedMixinGroups[obj]
+    @_attachedMixins[obj] or @_attachedMixinGroups[obj]
 
 Game.Entity::setName = (name) ->
   @_name = name

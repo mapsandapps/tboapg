@@ -96,6 +96,7 @@ Game.Screen.playScreen =
         )
         y++
       x++
+
     # render entities
     entities = @_map.getEntities()
     i = 0
@@ -112,6 +113,27 @@ Game.Screen.playScreen =
         )
 
       i++
+
+    # get messages in player's queue and render
+    messages = @_player.getMessages()
+    messageY = 0
+    i = 0
+    while i < messages.length
+      # draw each message, adding the number of lines
+      messageY += display.drawText(
+        0
+        messageY
+        '%c{white}%b{black}' + messages[i]
+      )
+      i++
+
+    # render player HP
+    stats = '%c{white}%b{black}'
+    stats += vsprintf('HP: %d/%d ', [
+      @_player.getHp()
+      @_player.getMaxHp()
+    ])
+    display.drawText 0, screenHeight, stats
     return
 
   handleInput: (inputType, inputData) ->

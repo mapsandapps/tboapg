@@ -10,7 +10,7 @@ Game = {
     var bindEventToScreen, game;
     this._display = new ROT.Display({
       width: this._screenWidth,
-      height: this._screenHeight,
+      height: this._screenHeight + 1,
       fontFamily: 'FontAwesome'
     });
     game = this;

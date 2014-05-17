@@ -37,6 +37,10 @@ Game.Map::dig = (x, y) ->
   if @getTile(x, y).isDiggable()
     @_tiles[x][y] = Game.Tile.floorTile
 
+Game.Map::isEmptyFloor = (x, y) ->
+  # check if the tile is floor and has no entity
+  @getTile(x, y) is Game.Tile.floorTile and not @getEntityAt(x, y)
+
 Game.Map::getRandomFloorPosition = ->
   # randomly generate a tile which is a floor
   x = undefined
@@ -44,7 +48,7 @@ Game.Map::getRandomFloorPosition = ->
   loop
     x = Math.floor(Math.random() * @_width)
     y = Math.floor(Math.random() * @_width)
-    break unless @getTile(x, y) isnt Game.Tile.floorTile or @getEntityAt(x, y)
+    break unless not @isEmptyFloor(x, y)
   x: x
   y: y
 
@@ -63,6 +67,24 @@ Game.Map::getEntityAt = (x, y) ->
     i++
   return false
 
+Game.Map::getEntitiesWithinRadius = (centerX, centerY, radius) ->
+  results = []
+  # determine bounds
+  leftX = centerX - radius
+  rightX = centerX + radius
+  topY = centerY - radius
+  bottomY = centerY + radius
+  # iterate through entities, adding any within bounds
+  i = 0
+  while i < @_entities.length
+    if @_entities[i].getX() >= leftX and
+       @_entities[i].getX() <= rightX and
+       @_entities[i].getY() >= topY and
+       @_entities[i].getY() <= bottomY
+      results.push(@_entities[i])
+    i++
+  return results
+
 Game.Map::addEntity = (entity) ->
   # make sure entity's position is within bounds
   if entity.getX() < 0 or entity.getX() >= @_width or entity.getY() < 0 or entity.getY() >= @_height
@@ -80,7 +102,19 @@ Game.Map::addEntityAtRandomPosition = (entity) ->
   entity.setX position.x
   entity.setY position.y
   @addEntity entity
+  return
 
+Game.Map::removeEntity = (entity) ->
+  # find the entity in the list of entities
+  i = 0
+  while i < @_entities.length
+    if @_entities[i] is entity
+      @_entities.splice i, 1
+      break
+    i++
+  # if the entity is an actor, remove them from scheduler
+  @_scheduler.remove entity if entity.hasMixin('Actor')
+  return
 
 
 

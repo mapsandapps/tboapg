@@ -37,6 +37,10 @@ Game.Map.prototype.dig = function(x, y) {
   }
 };
 
+Game.Map.prototype.isEmptyFloor = function(x, y) {
+  return this.getTile(x, y) === Game.Tile.floorTile && !this.getEntityAt(x, y);
+};
+
 Game.Map.prototype.getRandomFloorPosition = function() {
   var x, y;
   x = void 0;
@@ -44,7 +48,7 @@ Game.Map.prototype.getRandomFloorPosition = function() {
   while (true) {
     x = Math.floor(Math.random() * this._width);
     y = Math.floor(Math.random() * this._width);
-    if (!(this.getTile(x, y) !== Game.Tile.floorTile || this.getEntityAt(x, y))) {
+    if (!!this.isEmptyFloor(x, y)) {
       break;
     }
   }
@@ -74,6 +78,23 @@ Game.Map.prototype.getEntityAt = function(x, y) {
   return false;
 };
 
+Game.Map.prototype.getEntitiesWithinRadius = function(centerX, centerY, radius) {
+  var bottomY, i, leftX, results, rightX, topY;
+  results = [];
+  leftX = centerX - radius;
+  rightX = centerX + radius;
+  topY = centerY - radius;
+  bottomY = centerY + radius;
+  i = 0;
+  while (i < this._entities.length) {
+    if (this._entities[i].getX() >= leftX && this._entities[i].getX() <= rightX && this._entities[i].getY() >= topY && this._entities[i].getY() <= bottomY) {
+      results.push(this._entities[i]);
+    }
+    i++;
+  }
+  return results;
+};
+
 Game.Map.prototype.addEntity = function(entity) {
   if (entity.getX() < 0 || entity.getX() >= this._width || entity.getY() < 0 || entity.getY() >= this._height) {
     throw new Error('Adding entity out of bounds.');
@@ -90,5 +111,20 @@ Game.Map.prototype.addEntityAtRandomPosition = function(entity) {
   position = this.getRandomFloorPosition();
   entity.setX(position.x);
   entity.setY(position.y);
-  return this.addEntity(entity);
+  this.addEntity(entity);
+};
+
+Game.Map.prototype.removeEntity = function(entity) {
+  var i;
+  i = 0;
+  while (i < this._entities.length) {
+    if (this._entities[i] === entity) {
+      this._entities.splice(i, 1);
+      break;
+    }
+    i++;
+  }
+  if (entity.hasMixin('Actor')) {
+    this._scheduler.remove(entity);
+  }
 };

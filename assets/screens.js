@@ -62,7 +62,7 @@ Game.Screen.playScreen = {
     console.log("Exited play screen.");
   },
   render: function(display) {
-    var entities, entity, i, screenHeight, screenWidth, tile, topLeftX, topLeftY, x, y;
+    var entities, entity, i, messageY, messages, screenHeight, screenWidth, stats, tile, topLeftX, topLeftY, x, y;
     screenWidth = Game.getScreenWidth();
     screenHeight = Game.getScreenHeight();
     topLeftX = Math.max(0, this._player.getX() - (screenWidth / 2));
@@ -88,6 +88,16 @@ Game.Screen.playScreen = {
       }
       i++;
     }
+    messages = this._player.getMessages();
+    messageY = 0;
+    i = 0;
+    while (i < messages.length) {
+      messageY += display.drawText(0, messageY, '%c{white}%b{black}' + messages[i]);
+      i++;
+    }
+    stats = '%c{white}%b{black}';
+    stats += vsprintf('HP: %d/%d ', [this._player.getHp(), this._player.getMaxHp()]);
+    display.drawText(0, screenHeight, stats);
   },
   handleInput: function(inputType, inputData) {
     if (inputType === 'keydown') {
