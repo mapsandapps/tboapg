@@ -48,6 +48,27 @@ Game.Map = function(tiles, player) {
     }
     z++;
   }
+  this._explored = new Array(this._depth);
+  this._setupExploredArray();
+};
+
+Game.Map.prototype._setupExploredArray = function() {
+  var x, y, z;
+  z = 0;
+  while (z < this._depth) {
+    this._explored[z] = new Array(this._width);
+    x = 0;
+    while (x < this._width) {
+      this._explored[z][x] = new Array(this._height);
+      y = 0;
+      while (y < this._height) {
+        this._explored[z][x][y] = false;
+        y++;
+      }
+      x++;
+    }
+    z++;
+  }
 };
 
 Game.Map.prototype.getWidth = function() {
@@ -72,6 +93,20 @@ Game.Map.prototype.getTile = function(x, y, z) {
 
 Game.Map.prototype.isEmptyFloor = function(x, y, z) {
   return this.getTile(x, y, z) === Game.Tile.floorTile && !this.getEntityAt(x, y, z);
+};
+
+Game.Map.prototype.setExplored = function(x, y, z, state) {
+  if (this.getTile(x, y, z) !== Game.Tile.nullTile) {
+    this._explored[z][x][y] = state;
+  }
+};
+
+Game.Map.prototype.isExplored = function(x, y, z) {
+  if (this.getTile(x, y, z) !== Game.Tile.nullTile) {
+    return this._explored[z][x][y];
+  } else {
+    return false;
+  }
 };
 
 Game.Map.prototype.setupFov = function() {

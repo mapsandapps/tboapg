@@ -39,7 +39,7 @@ Game.Screen.playScreen = {
     console.log("Exited play screen.");
   },
   render: function(display) {
-    var entities, entity, i, messageY, messages, screenHeight, screenWidth, stats, tile, topLeftX, topLeftY, visibleCells, x, y;
+    var background, currentDepth, entities, entity, i, map, messageY, messages, screenHeight, screenWidth, stats, tile, topLeftX, topLeftY, visibleCells, x, y;
     screenWidth = Game.getScreenWidth();
     screenHeight = Game.getScreenHeight();
     topLeftX = Math.max(0, this._player.getX() - (screenWidth / 2));
@@ -47,16 +47,20 @@ Game.Screen.playScreen = {
     topLeftY = Math.max(0, this._player.getY() - (screenHeight / 2));
     topLeftY = Math.min(topLeftY, this._map.getHeight() - screenHeight);
     visibleCells = {};
-    this._map.getFov(this._player.getZ()).compute(this._player.getX(), this._player.getY(), this._player.getSightRadius(), function(x, y, radius, visibility) {
+    map = this._map;
+    currentDepth = this._player.getZ();
+    this._map.getFov(currentDepth).compute(this._player.getX(), this._player.getY(), this._player.getSightRadius(), function(x, y, radius, visibility) {
       visibleCells[x + ',' + y] = true;
+      map.setExplored(x, y, currentDepth, true);
     });
     x = topLeftX;
     while (x < topLeftX + screenWidth) {
       y = topLeftY;
       while (y < topLeftY + screenHeight) {
-        if (visibleCells[x + ',' + y]) {
-          tile = this._map.getTile(x, y, this._player.getZ());
-          display.draw(x - topLeftX, y - topLeftY, tile.getChar(), tile.getForeground(), tile.getBackground());
+        if (map.isExplored(x, y, currentDepth)) {
+          tile = this._map.getTile(x, y, currentDepth);
+          background = (visibleCells[x + "," + y] || tile._walkable === false ? tile.getBackground() : "#1b002e");
+          display.draw(x - topLeftX, y - topLeftY, tile.getChar(), tile.getForeground(), background);
         }
         y++;
       }

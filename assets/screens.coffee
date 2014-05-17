@@ -57,29 +57,36 @@ Game.Screen.playScreen =
     topLeftY = Math.min(topLeftY, @_map.getHeight() - screenHeight)
     # this object will keep track of all visible map cells
     visibleCells = {}
+    # store @_map and player's z to prevent losing it in callbacks
+    map = @_map
+    currentDepth = @_player.getZ()
     # find all visible cells and update the object
-    @_map.getFov(@_player.getZ()).compute(
+    @_map.getFov(currentDepth).compute(
       @_player.getX()
       @_player.getY()
       @_player.getSightRadius()
       (x, y, radius, visibility) ->
         visibleCells[x + ',' + y] = true
+        # mark cell as explored
+        map.setExplored(x, y, currentDepth, true)
         return
     )
-    # iterate through all visible map cells
+    # render the explored map cells
     x = topLeftX
     while x < topLeftX + screenWidth
       y = topLeftY
       while y < topLeftY + screenHeight
-        if visibleCells[x + ',' + y]
-          # fetch glyph for tile and render it
-          tile = @_map.getTile(x, y, @_player.getZ())
+        if map.isExplored(x, y, currentDepth)
+          # fetch the glyph for the tile and render it to the screen
+          tile = @_map.getTile(x, y, currentDepth)
+          # background becomes dark gray if tile explored but not visible
+          background = (if visibleCells[x + "," + y] or tile._walkable is false then tile.getBackground() else "#1b002e")
           display.draw(
             x - topLeftX
             y - topLeftY
             tile.getChar()
             tile.getForeground()
-            tile.getBackground()
+            background
           )
         y++
       x++

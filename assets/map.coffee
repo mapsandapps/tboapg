@@ -51,8 +51,28 @@ Game.Map = (tiles, player) ->
       @addEntityAtRandomPosition new Game.Entity(Game.FungusTemplate), z
       i++
     z++
+
+  # set up the explored array
+  @_explored = new Array(@_depth)
+  @_setupExploredArray()
   return
 
+Game.Map::_setupExploredArray = ->
+  z = 0
+  while z < @_depth
+    @_explored[z] = new Array(@_width)
+    x = 0
+
+    while x < @_width
+      @_explored[z][x] = new Array(@_height)
+      y = 0
+    
+      while y < @_height
+        @_explored[z][x][y] = false
+        y++
+      x++
+    z++
+  return
 
 Game.Map::getWidth = ->
   @_width
@@ -76,6 +96,18 @@ Game.Map::getTile = (x, y, z) ->
 Game.Map::isEmptyFloor = (x, y, z) ->
   # check if the tile is floor and has no entity
   @getTile(x, y, z) is Game.Tile.floorTile and not @getEntityAt(x, y, z)
+
+Game.Map::setExplored = (x, y, z, state) ->
+  # only update if tile is within bounds
+  @_explored[z][x][y] = state  if @getTile(x, y, z) isnt Game.Tile.nullTile
+  return
+
+Game.Map::isExplored = (x, y, z) ->
+  # only return value if in bounds
+  if @getTile(x, y, z) isnt Game.Tile.nullTile
+    @_explored[z][x][y]
+  else
+    false
 
 Game.Map::setupFov = ->
   # keep this in 'map' variable so we don't lose it
