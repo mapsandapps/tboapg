@@ -55,20 +55,32 @@ Game.Screen.playScreen =
     topLeftY = Math.max(0, @_player.getY() - (screenHeight / 2))
     # make sure we have enough space for game screen
     topLeftY = Math.min(topLeftY, @_map.getHeight() - screenHeight)
+    # this object will keep track of all visible map cells
+    visibleCells = {}
+    # find all visible cells and update the object
+    @_map.getFov(@_player.getZ()).compute(
+      @_player.getX()
+      @_player.getY()
+      @_player.getSightRadius()
+      (x, y, radius, visibility) ->
+        visibleCells[x + ',' + y] = true
+        return
+    )
     # iterate through all visible map cells
     x = topLeftX
     while x < topLeftX + screenWidth
       y = topLeftY
       while y < topLeftY + screenHeight
-        # fetch glyph for tile and render it
-        tile = @_map.getTile(x, y, @_player.getZ())
-        display.draw(
-          x - topLeftX
-          y - topLeftY
-          tile.getChar()
-          tile.getForeground()
-          tile.getBackground()
-        )
+        if visibleCells[x + ',' + y]
+          # fetch glyph for tile and render it
+          tile = @_map.getTile(x, y, @_player.getZ())
+          display.draw(
+            x - topLeftX
+            y - topLeftY
+            tile.getChar()
+            tile.getForeground()
+            tile.getBackground()
+          )
         y++
       x++
 
@@ -83,14 +95,14 @@ Game.Screen.playScreen =
          entity.getX() < topLeftX + screenWidth and 
          entity.getY() < topLeftY + screenHeight and
          entity.getZ() is @_player.getZ()
-        display.draw(
-          entity.getX() - topLeftX
-          entity.getY() - topLeftY
-          entity.getChar()
-          entity.getForeground()
-          entity.getBackground()
-        )
-
+        if visibleCells[entity.getX() + ',' + entity.getY()]
+          display.draw(
+            entity.getX() - topLeftX
+            entity.getY() - topLeftY
+            entity.getChar()
+            entity.getForeground()
+            entity.getBackground()
+          )
       i++
 
     # get messages in player's queue and render

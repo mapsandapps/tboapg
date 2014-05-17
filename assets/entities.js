@@ -130,6 +130,17 @@ Game.Mixins.MessageRecipient = {
   }
 };
 
+Game.Mixins.Sight = {
+  name: 'Sight',
+  groupName: 'Sight',
+  init: function(template) {
+    this._sightRadius = template['sightRadius'] || 5;
+  },
+  getSightRadius: function() {
+    return this._sightRadius;
+  }
+};
+
 Game.sendMessage = function(recipient, message, args) {
   if (recipient.hasMixin(Game.Mixins.MessageRecipient)) {
     if (args) {
@@ -159,7 +170,8 @@ Game.PlayerTemplate = {
   foreground: 'white',
   maxHp: 40,
   attackValue: 10,
-  mixins: [Game.Mixins.Moveable, Game.Mixins.PlayerActor, Game.Mixins.Attacker, Game.Mixins.Destructible, Game.Mixins.MessageRecipient]
+  sightRadius: 6,
+  mixins: [Game.Mixins.Moveable, Game.Mixins.PlayerActor, Game.Mixins.Attacker, Game.Mixins.Destructible, Game.Mixins.MessageRecipient, Game.Mixins.Sight]
 };
 
 Game.FungusTemplate = {

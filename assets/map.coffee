@@ -7,6 +7,9 @@ Game.Map = (tiles, player) ->
   @_depth = tiles.length
   @_width = tiles[0].length
   @_height = tiles[0][0].length
+  # set up the field of vision
+  @_fov = []
+  @setupFov()
   # create a list that will hold the entities
   @_entities = []
 
@@ -39,7 +42,6 @@ Game.Map = (tiles, player) ->
       y: upPos.y
     )
     z++
-  # now i just need player to move to the right location when changing floors
 
   # add random fungi
   z = 0
@@ -74,6 +76,31 @@ Game.Map::getTile = (x, y, z) ->
 Game.Map::isEmptyFloor = (x, y, z) ->
   # check if the tile is floor and has no entity
   @getTile(x, y, z) is Game.Tile.floorTile and not @getEntityAt(x, y, z)
+
+Game.Map::setupFov = ->
+  # keep this in 'map' variable so we don't lose it
+  map = this
+  # iterate through each depth level, setting up fov
+  z = 0
+  while z < @_depth
+    # we have to put the following in its own scope to prevent
+    # depth variable from being hoisted
+    ( ->
+      # for each depth, create callback to determine
+      # if light can pass through tile
+      depth = z
+      map._fov.push new ROT.FOV.DiscreteShadowcasting((x, y) ->
+        not map.getTile(x, y, depth).isBlockingLight()
+      ,
+        topology: 4
+      )
+      return
+    )()
+    z++
+  return
+
+Game.Map::getFov = (depth) ->
+  @_fov[depth]
 
 Game.Map::getRandomFloorPosition = (z) ->
   # randomly generate a tile which is a floor

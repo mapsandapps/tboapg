@@ -2,20 +2,26 @@ Game.Tile = (properties) ->
   properties = properties or {}
   # call glyph constructor with our properties
   Game.Glyph.call this, properties
-  @_isWalkable = properties['isWalkable'] or false
+  @_walkable = properties['walkable'] or false
+  @_blocksLight = (if (properties["blocksLight"] isnt `undefined`) then properties["blocksLight"] else true)
   return
 
 # make tiles inherit the functionality from glyphs
 Game.Tile.extend(Game.Glyph)
 
 Game.Tile::isWalkable = ->
-  @_isWalkable
+  @_walkable
+
+Game.Tile::isBlockingLight = ->
+  @_blocksLight
 
 Game.Tile.nullTile = new Game.Tile({})
 Game.Tile.floorTile = new Game.Tile(
   background: 'indigo'
-  isWalkable: true
+  walkable: true
+  blocksLight: false
 )
+
 Game.Tile.wallTile = new Game.Tile(
   background: 'black'
 )
@@ -23,13 +29,15 @@ Game.Tile.wallTile = new Game.Tile(
 Game.Tile.stairsUpTile = new Game.Tile(
   character: ''
   foreground: 'goldenrod'
-  isWalkable: true
+  walkable: true
+  blocksLight: true
 )
 
 Game.Tile.stairsDownTile = new Game.Tile(
   character: ''
   foreground: 'goldenrod'
-  isWalkable: true
+  walkable: true
+  blocksLight: false
 )
 
 # helper function

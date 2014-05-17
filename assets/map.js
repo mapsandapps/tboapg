@@ -11,6 +11,8 @@ Game.Map = function(tiles, player) {
   this._depth = tiles.length;
   this._width = tiles[0].length;
   this._height = tiles[0][0].length;
+  this._fov = [];
+  this.setupFov();
   this._entities = [];
   this._scheduler = new ROT.Scheduler.Simple();
   this._engine = new ROT.Engine(this._scheduler);
@@ -70,6 +72,28 @@ Game.Map.prototype.getTile = function(x, y, z) {
 
 Game.Map.prototype.isEmptyFloor = function(x, y, z) {
   return this.getTile(x, y, z) === Game.Tile.floorTile && !this.getEntityAt(x, y, z);
+};
+
+Game.Map.prototype.setupFov = function() {
+  var map, z;
+  map = this;
+  z = 0;
+  while (z < this._depth) {
+    (function() {
+      var depth;
+      depth = z;
+      map._fov.push(new ROT.FOV.DiscreteShadowcasting(function(x, y) {
+        return !map.getTile(x, y, depth).isBlockingLight();
+      }, {
+        topology: 4
+      }));
+    })();
+    z++;
+  }
+};
+
+Game.Map.prototype.getFov = function(depth) {
+  return this._fov[depth];
 };
 
 Game.Map.prototype.getRandomFloorPosition = function(z) {

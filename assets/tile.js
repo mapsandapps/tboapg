@@ -2,20 +2,26 @@
 Game.Tile = function(properties) {
   properties = properties || {};
   Game.Glyph.call(this, properties);
-  this._isWalkable = properties['isWalkable'] || false;
+  this._walkable = properties['walkable'] || false;
+  this._blocksLight = (properties["blocksLight"] !== undefined ? properties["blocksLight"] : true);
 };
 
 Game.Tile.extend(Game.Glyph);
 
 Game.Tile.prototype.isWalkable = function() {
-  return this._isWalkable;
+  return this._walkable;
+};
+
+Game.Tile.prototype.isBlockingLight = function() {
+  return this._blocksLight;
 };
 
 Game.Tile.nullTile = new Game.Tile({});
 
 Game.Tile.floorTile = new Game.Tile({
   background: 'indigo',
-  isWalkable: true
+  walkable: true,
+  blocksLight: false
 });
 
 Game.Tile.wallTile = new Game.Tile({
@@ -25,13 +31,15 @@ Game.Tile.wallTile = new Game.Tile({
 Game.Tile.stairsUpTile = new Game.Tile({
   character: '',
   foreground: 'goldenrod',
-  isWalkable: true
+  walkable: true,
+  blocksLight: true
 });
 
 Game.Tile.stairsDownTile = new Game.Tile({
   character: '',
   foreground: 'goldenrod',
-  isWalkable: true
+  walkable: true,
+  blocksLight: false
 });
 
 Game.getNeighborPositions = function(x, y) {

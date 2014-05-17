@@ -36,12 +36,12 @@ Game.Mixins.Moveable =
     # check if tile is stairs, if so, let player know what to do
     else if tile is Game.Tile.stairsDownTile or tile is Game.Tile.stairsUpTile
       Game.sendMessage this, "Press 'u' to go upstairs or 'd' to go downstairs."
-      @setPosition(x, y, z)
+      @setPosition x, y, z
       return true
     # check if we can walk on the tile
     else if tile.isWalkable()
       # update the entity's position
-      @setPosition(x, y, z)
+      @setPosition x, y, z
       return true
     false
 
@@ -138,6 +138,17 @@ Game.Mixins.MessageRecipient =
     @_messages = []
     return
 
+# this signifies our entity possesses a fov of a given radius
+Game.Mixins.Sight =
+  name: 'Sight'
+  groupName: 'Sight'
+  init: (template) ->
+    @_sightRadius = template['sightRadius'] or 5
+    return
+
+  getSightRadius: ->
+    @_sightRadius
+
 Game.sendMessage = (recipient, message, args) ->
   # make sure recipient can receive message
   if recipient.hasMixin(Game.Mixins.MessageRecipient)
@@ -166,13 +177,22 @@ Game.PlayerTemplate =
   foreground: 'white'
   maxHp: 40
   attackValue: 10
-  mixins: [Game.Mixins.Moveable, Game.Mixins.PlayerActor,
-           Game.Mixins.Attacker, Game.Mixins.Destructible,
-           Game.Mixins.MessageRecipient]
+  sightRadius: 6
+  mixins: [
+    Game.Mixins.Moveable
+    Game.Mixins.PlayerActor
+    Game.Mixins.Attacker
+    Game.Mixins.Destructible
+    Game.Mixins.MessageRecipient
+    Game.Mixins.Sight
+  ]
 
 Game.FungusTemplate = 
   name: 'fungus'
   character: 'F'
   foreground: 'green'
   maxHp: 10
-  mixins: [Game.Mixins.FungusActor, Game.Mixins.Destructible]
+  mixins: [
+    Game.Mixins.FungusActor
+    Game.Mixins.Destructible
+  ]

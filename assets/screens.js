@@ -39,19 +39,25 @@ Game.Screen.playScreen = {
     console.log("Exited play screen.");
   },
   render: function(display) {
-    var entities, entity, i, messageY, messages, screenHeight, screenWidth, stats, tile, topLeftX, topLeftY, x, y;
+    var entities, entity, i, messageY, messages, screenHeight, screenWidth, stats, tile, topLeftX, topLeftY, visibleCells, x, y;
     screenWidth = Game.getScreenWidth();
     screenHeight = Game.getScreenHeight();
     topLeftX = Math.max(0, this._player.getX() - (screenWidth / 2));
     topLeftX = Math.min(topLeftX, this._map.getWidth() - screenWidth);
     topLeftY = Math.max(0, this._player.getY() - (screenHeight / 2));
     topLeftY = Math.min(topLeftY, this._map.getHeight() - screenHeight);
+    visibleCells = {};
+    this._map.getFov(this._player.getZ()).compute(this._player.getX(), this._player.getY(), this._player.getSightRadius(), function(x, y, radius, visibility) {
+      visibleCells[x + ',' + y] = true;
+    });
     x = topLeftX;
     while (x < topLeftX + screenWidth) {
       y = topLeftY;
       while (y < topLeftY + screenHeight) {
-        tile = this._map.getTile(x, y, this._player.getZ());
-        display.draw(x - topLeftX, y - topLeftY, tile.getChar(), tile.getForeground(), tile.getBackground());
+        if (visibleCells[x + ',' + y]) {
+          tile = this._map.getTile(x, y, this._player.getZ());
+          display.draw(x - topLeftX, y - topLeftY, tile.getChar(), tile.getForeground(), tile.getBackground());
+        }
         y++;
       }
       x++;
@@ -61,7 +67,9 @@ Game.Screen.playScreen = {
     while (i < entities.length) {
       entity = entities[i];
       if (entity.getX() >= topLeftX && entity.getY() >= topLeftY && entity.getX() < topLeftX + screenWidth && entity.getY() < topLeftY + screenHeight && entity.getZ() === this._player.getZ()) {
-        display.draw(entity.getX() - topLeftX, entity.getY() - topLeftY, entity.getChar(), entity.getForeground(), entity.getBackground());
+        if (visibleCells[entity.getX() + ',' + entity.getY()]) {
+          display.draw(entity.getX() - topLeftX, entity.getY() - topLeftY, entity.getChar(), entity.getForeground(), entity.getBackground());
+        }
       }
       i++;
     }
