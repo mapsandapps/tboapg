@@ -1,0 +1,11 @@
+body {
+  background-color: black;
+  color: white;
+}
+
+i { 
+    font-size: 500%;
+    outline:none;
+    border-color:#9ecaed;
+    text-shadow:0 0 20px #9ecaed;
+}

@@ -1,0 +1,16 @@
+{
+	"folders":
+	[
+		{
+			"follow_symlinks": true,
+			"path": "/home/mollie/Dropbox/Projects/tboapg"
+		},{
+			"follow_symlinks": true,
+			"path": "/home/mollie/Dropbox/Projects"
+		},{
+			"follow_symlinks": true,
+			"path": "/home/mollie/Dropbox/Projects/mollietaylor/files",
+			"name": "mollietaylor/files"
+		}
+	]
+}
