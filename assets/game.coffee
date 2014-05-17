@@ -1,7 +1,7 @@
 Game = 
   _display: null
   _currentScreen: null
-  _screenWidth: 80
+  _screenWidth: 60
   _screenHeight: 24
   init: ->
 
@@ -9,7 +9,6 @@ Game =
       width: @_screenWidth
       height: @_screenHeight
       fontFamily: 'FontAwesome'
-      border: 15
     )
 
     # helper function for binding to event and making it
@@ -65,7 +64,7 @@ window.onload = ->
   else
     Game.init()
     # add container to page
-    document.body.appendChild Game.getDisplay().getContainer()
+    document.getElementById("game").appendChild Game.getDisplay().getContainer()
     # load start screen
     Game.switchScreen Game.Screen.startScreen
   return

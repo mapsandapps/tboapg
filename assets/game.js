@@ -4,15 +4,14 @@ var Game;
 Game = {
   _display: null,
   _currentScreen: null,
-  _screenWidth: 80,
+  _screenWidth: 60,
   _screenHeight: 24,
   init: function() {
     var bindEventToScreen, game;
     this._display = new ROT.Display({
       width: this._screenWidth,
       height: this._screenHeight,
-      fontFamily: 'FontAwesome',
-      border: 15
+      fontFamily: 'FontAwesome'
     });
     game = this;
     bindEventToScreen = function(event) {
@@ -55,7 +54,7 @@ window.onload = function() {
     alert("The rot.js library isn't supported by your browser.");
   } else {
     Game.init();
-    document.body.appendChild(Game.getDisplay().getContainer());
+    document.getElementById("game").appendChild(Game.getDisplay().getContainer());
     Game.switchScreen(Game.Screen.startScreen);
   }
 };

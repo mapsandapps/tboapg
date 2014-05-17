@@ -37,14 +37,13 @@ Game.Mixins.FungusActor = {
 };
 
 Game.PlayerTemplate = {
-  character: '',
+  character: '',
   foreground: 'white',
-  background: 'black',
   mixins: [Game.Mixins.Moveable, Game.Mixins.PlayerActor]
 };
 
 Game.FungusTemplate = {
-  character: ' ',
+  character: 'F',
   foreground: 'green',
   mixins: [Game.Mixins.FungusActor]
 };
