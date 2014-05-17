@@ -3,11 +3,26 @@ Game.Mixins = {};
 
 Game.Mixins.Moveable = {
   name: 'Moveable',
-  tryMove: function(x, y, map) {
+  tryMove: function(x, y, z, map) {
     var target, tile;
-    tile = map.getTile(x, y);
-    target = map.getEntityAt(x, y);
-    if (target) {
+    map = this.getMap();
+    tile = map.getTile(x, y, this.getZ());
+    target = map.getEntityAt(x, y, this.getZ());
+    if (z < this.getZ()) {
+      if (tile !== Game.Tile.stairsUpTile) {
+        Game.sendMessage(this, "You can't go up here!");
+      } else {
+        Game.sendMessage(this, "You ascend to level %d!", [z + 1]);
+        this.setPosition(x, y, z);
+      }
+    } else if (z > this.getZ()) {
+      if (tile !== Game.Tile.stairsDownTile) {
+        Game.sendMessage(this, "You can't go down here!");
+      } else {
+        this.setPosition(x, y, z);
+        Game.sendMessage(this, "You descend to level %d!", [z + 1]);
+      }
+    } else if (target) {
       if (this.hasMixin('Attacker')) {
         this.attack(target);
         return true;
@@ -15,8 +30,7 @@ Game.Mixins.Moveable = {
         return false;
       }
     } else if (tile.isWalkable()) {
-      this._x = x;
-      this._y = y;
+      this.setPosition(x, y, z);
       return true;
     }
     return false;
@@ -120,12 +134,12 @@ Game.sendMessage = function(recipient, message, args) {
   }
 };
 
-Game.sendMessageNearby = function(map, centerX, centerY, message, args) {
+Game.sendMessageNearby = function(map, centerX, centerY, centerZ, message, args) {
   var entities, i;
   if (args) {
     message = vsprintf(message, args);
   }
-  entities = map.getEntitiesWithinRadius(centerX, centerY, 5);
+  entities = map.getEntitiesWithinRadius(centerX, centerY, centerZ, 5);
   i = 0;
   while (i < entities.length) {
     if (entities[i].hasMixin(Game.Mixins.MessageRecipient)) {

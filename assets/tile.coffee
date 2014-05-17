@@ -38,6 +38,7 @@ Game.Tile.stairsDownTile = new Game.Tile(
 )
 
 # helper function
+# not sure if i'll use this
 Game.getNeighborPositions = (x, y) ->
   tiles = []
   # generate all possible offsets

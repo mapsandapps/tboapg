@@ -25,30 +25,13 @@ Game.Screen.playScreen = {
   _map: null,
   _player: null,
   enter: function() {
-    var generator, map, mapHeight, mapWidth, x, y;
-    map = [];
-    mapWidth = Game.getScreenWidth();
-    mapHeight = Game.getScreenHeight();
-    x = 0;
-    while (x < mapWidth) {
-      map.push([]);
-      y = 0;
-      while (y < mapHeight) {
-        map[x].push(Game.Tile.nullTile);
-        y++;
-      }
-      x++;
-    }
-    generator = new ROT.Map.Uniform(mapWidth, mapHeight);
-    generator.create(function(x, y, v) {
-      if (v === 0) {
-        map[x][y] = Game.Tile.floorTile;
-      } else {
-        map[x][y] = Game.Tile.wallTile;
-      }
-    });
+    var depth, height, tiles, width;
+    width = Game.getScreenWidth();
+    height = Game.getScreenHeight();
+    depth = 6;
+    tiles = new Game.Builder(width, height, depth).getTiles();
     this._player = new Game.Entity(Game.PlayerTemplate);
-    this._map = new Game.Map(map, this._player);
+    this._map = new Game.Map(tiles, this._player);
     this._map.getEngine().start();
   },
   exit: function() {
@@ -66,7 +49,7 @@ Game.Screen.playScreen = {
     while (x < topLeftX + screenWidth) {
       y = topLeftY;
       while (y < topLeftY + screenHeight) {
-        tile = this._map.getTile(x, y);
+        tile = this._map.getTile(x, y, this._player.getZ());
         display.draw(x - topLeftX, y - topLeftY, tile.getChar(), tile.getForeground(), tile.getBackground());
         y++;
       }
@@ -76,7 +59,7 @@ Game.Screen.playScreen = {
     i = 0;
     while (i < entities.length) {
       entity = entities[i];
-      if (entity.getX() >= topLeftX && entity.getY() >= topLeftY && entity.getX() < topLeftX + screenWidth && entity.getY() < topLeftY + screenHeight) {
+      if (entity.getX() >= topLeftX && entity.getY() >= topLeftY && entity.getX() < topLeftX + screenWidth && entity.getY() < topLeftY + screenHeight && entity.getZ() === this._player.getZ()) {
         display.draw(entity.getX() - topLeftX, entity.getY() - topLeftY, entity.getChar(), entity.getForeground(), entity.getBackground());
       }
       i++;
@@ -93,29 +76,44 @@ Game.Screen.playScreen = {
     display.drawText(0, screenHeight, stats);
   },
   handleInput: function(inputType, inputData) {
+    var keyChar;
     if (inputType === 'keydown') {
       if (inputData.keyCode === ROT.VK_RETURN) {
         Game.switchScreen(Game.Screen.winScreen);
       } else if (inputData.keyCode === ROT.VK_ESCAPE) {
         Game.switchScreen(Game.Screen.loseScreen);
+      } else {
+        if (inputData.keyCode === ROT.VK_LEFT) {
+          this.move(-1, 0, 0);
+        } else if (inputData.keyCode === ROT.VK_RIGHT) {
+          this.move(1, 0, 0);
+        } else if (inputData.keyCode === ROT.VK_UP) {
+          this.move(0, -1, 0);
+        } else if (inputData.keyCode === ROT.VK_DOWN) {
+          this.move(0, 1, 0);
+        } else {
+          return;
+        }
+        this._map.getEngine().unlock();
       }
-      if (inputData.keyCode === ROT.VK_LEFT) {
-        this.move(-1, 0);
-      } else if (inputData.keyCode === ROT.VK_RIGHT) {
-        this.move(1, 0);
-      } else if (inputData.keyCode === ROT.VK_UP) {
-        this.move(0, -1);
-      } else if (inputData.keyCode === ROT.VK_DOWN) {
-        this.move(0, 1);
+    } else if (inputType === 'keypress') {
+      keyChar = String.fromCharCode(inputData.charCode);
+      if (keyChar === '>') {
+        this.move(0, 0, 1);
+      } else if (keyChar === '<') {
+        this.move(0, 0, -1);
+      } else {
+        return;
       }
       this._map.getEngine().unlock();
     }
   },
-  move: function(dX, dY) {
-    var newX, newY;
+  move: function(dX, dY, dZ) {
+    var newX, newY, newZ;
     newX = this._player.getX() + dX;
     newY = this._player.getY() + dY;
-    this._player.tryMove(newX, newY, this._map);
+    newZ = this._player.getZ() + dZ;
+    this._player.tryMove(newX, newY, newZ, this._map);
   }
 };
 

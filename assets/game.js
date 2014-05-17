@@ -22,6 +22,7 @@ Game = {
       });
     };
     bindEventToScreen('keydown');
+    bindEventToScreen('keypress');
   },
   getDisplay: function() {
     return this._display;

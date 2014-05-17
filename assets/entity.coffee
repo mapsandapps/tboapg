@@ -6,6 +6,7 @@ Game.Entity = (properties) ->
   @_name = properties['name'] or ''
   @_x = properties['x'] or 0
   @_y = properties['y'] or 0
+  @_z = properties['z'] or 0
   @_map = null
   # create an object which will keep track of the mixins
   # attached to the entity based on the name property
@@ -55,9 +56,18 @@ Game.Entity::setY = (y) ->
   @_y = y
   return
 
+Game.Entity::setZ = (z) ->
+  @_z = z
+  return
+
 Game.Entity::setMap = (map) ->
   @_map = map
   return
+
+Game.Entity::setPosition = (x, y, z) ->
+  @_x = x
+  @_y = y
+  @_z = z
 
 Game.Entity::getName = ->
   @_name
@@ -67,6 +77,9 @@ Game.Entity::getX = ->
 
 Game.Entity::getY = ->
   @_y
+
+Game.Entity::getZ = ->
+  @_z
 
 Game.Entity::getMap = ->
   @_map

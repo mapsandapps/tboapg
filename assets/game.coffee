@@ -24,7 +24,7 @@ Game =
 
     bindEventToScreen('keydown')
     # bindEventToScreen('keyup')
-    # bindEventToScreen('keypress')
+    bindEventToScreen('keypress')
     return
 
   getDisplay: ->

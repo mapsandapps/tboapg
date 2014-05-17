@@ -26,33 +26,14 @@ Game.Screen.playScreen =
   _map: null
   _player: null
   enter: ->
-    map = []
-    mapWidth = Game.getScreenWidth()
-    mapHeight = Game.getScreenHeight()
-    x = 0
-    while x < mapWidth
-      map.push []
-      # add all the tiles
-      y = 0
-      while y < mapHeight
-        map[x].push Game.Tile.nullTile
-        y++
-      x++
-
-    # set up map generator
-    generator = new ROT.Map.Uniform(mapWidth, mapHeight)
-
-    # smoothen a last time & update
-    generator.create (x, y, v) ->
-      if v is 0
-        map[x][y] = Game.Tile.floorTile
-      else
-        map[x][y] = Game.Tile.wallTile
-      return
-
+    width = Game.getScreenWidth()
+    height = Game.getScreenHeight()
+    depth = 6
+    
     # create map from tiles and player
+    tiles = new Game.Builder(width, height, depth).getTiles()
     @_player = new Game.Entity(Game.PlayerTemplate)
-    @_map = new Game.Map(map, @_player)
+    @_map = new Game.Map(tiles, @_player)
     # start map's engine
     @_map.getEngine().start()
 
@@ -73,12 +54,13 @@ Game.Screen.playScreen =
     topLeftY = Math.max(0, @_player.getY() - (screenHeight / 2))
     # make sure we have enough space for game screen
     topLeftY = Math.min(topLeftY, @_map.getHeight() - screenHeight)
+    # iterate through all visible map cells
     x = topLeftX
     while x < topLeftX + screenWidth
       y = topLeftY
       while y < topLeftY + screenHeight
         # fetch glyph for tile and render it
-        tile = @_map.getTile(x, y)
+        tile = @_map.getTile(x, y, @_player.getZ())
         display.draw(
           x - topLeftX
           y - topLeftY
@@ -95,7 +77,11 @@ Game.Screen.playScreen =
     while i < entities.length
       entity = entities[i]
       # only render entity if it would show on screen
-      if entity.getX() >= topLeftX and entity.getY() >= topLeftY and entity.getX() < topLeftX + screenWidth and entity.getY() < topLeftY + screenHeight
+      if entity.getX() >= topLeftX and 
+         entity.getY() >= topLeftY and 
+         entity.getX() < topLeftX + screenWidth and 
+         entity.getY() < topLeftY + screenHeight and
+         entity.getZ() is @_player.getZ()
         display.draw(
           entity.getX() - topLeftX
           entity.getY() - topLeftY
@@ -134,24 +120,38 @@ Game.Screen.playScreen =
         Game.switchScreen Game.Screen.winScreen
       else if inputData.keyCode is ROT.VK_ESCAPE
         Game.switchScreen Game.Screen.loseScreen
-      # movement
-      if inputData.keyCode is ROT.VK_LEFT
-        @move -1, 0
-      else if inputData.keyCode is ROT.VK_RIGHT
-        @move 1, 0
-      else if inputData.keyCode is ROT.VK_UP
-        @move 0, -1
-      else if inputData.keyCode is ROT.VK_DOWN
-        @move 0, 1
+      else
+        # movement
+        if inputData.keyCode is ROT.VK_LEFT
+          @move -1, 0, 0
+        else if inputData.keyCode is ROT.VK_RIGHT
+          @move 1, 0, 0
+        else if inputData.keyCode is ROT.VK_UP
+          @move 0, -1, 0
+        else if inputData.keyCode is ROT.VK_DOWN
+          @move 0, 1, 0
+        else # not a valid key
+          return
+        # unlock the engine
+        @_map.getEngine().unlock()
+    else if inputType is 'keypress'
+      keyChar = String.fromCharCode(inputData.charCode)
+      if keyChar is '>'
+        @move 0, 0, 1
+      else if keyChar is '<'
+        @move 0, 0, -1
+      else # not a valid key
+        return
       # unlock the engine
       @_map.getEngine().unlock()
     return
 
-  move: (dX, dY) ->
+  move: (dX, dY, dZ) ->
     newX = @_player.getX() + dX
     newY = @_player.getY() + dY
+    newZ = @_player.getZ() + dZ
     # try to move to the new cell
-    @_player.tryMove newX, newY, @_map
+    @_player.tryMove newX, newY, newZ, @_map
     return
 
 # win screen
