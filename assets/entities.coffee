@@ -22,10 +22,10 @@ Game.Mixins.Moveable =
       @_x = x
       @_y = y
       return true
-    # check if the tile is diggable and if so, try to dig
-    else if tile.isDiggable()
-      map.dig x, y
-      return true
+    # # check if the tile is diggable and if so, try to dig
+    # else if tile.isDiggable()
+    #   map.dig x, y
+    #   return true
     false
 
 # main player's actor mixin

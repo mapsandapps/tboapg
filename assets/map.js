@@ -9,7 +9,7 @@ Game.Map = function(tiles, player) {
   this._engine = new ROT.Engine(this._scheduler);
   this.addEntityAtRandomPosition(player);
   i = 0;
-  while (i < 1000) {
+  while (i < 10) {
     this.addEntityAtRandomPosition(new Game.Entity(Game.FungusTemplate));
     i++;
   }
@@ -28,12 +28,6 @@ Game.Map.prototype.getTile = function(x, y) {
     return Game.Tile.nullTile;
   } else {
     return this._tiles[x][y] || Game.Tile.nullTile;
-  }
-};
-
-Game.Map.prototype.dig = function(x, y) {
-  if (this.getTile(x, y).isDiggable()) {
-    return this._tiles[x][y] = Game.Tile.floorTile;
   }
 };
 

@@ -25,10 +25,10 @@ Game.Screen.playScreen = {
   _map: null,
   _player: null,
   enter: function() {
-    var generator, i, map, mapHeight, mapWidth, totalIterations, x, y;
+    var generator, map, mapHeight, mapWidth, x, y;
     map = [];
-    mapWidth = 500;
-    mapHeight = 500;
+    mapWidth = Game.getScreenWidth();
+    mapHeight = Game.getScreenHeight();
     x = 0;
     while (x < mapWidth) {
       map.push([]);
@@ -39,16 +39,9 @@ Game.Screen.playScreen = {
       }
       x++;
     }
-    generator = new ROT.Map.Cellular(mapWidth, mapHeight);
-    generator.randomize(0.5);
-    totalIterations = 3;
-    i = 0;
-    while (i < totalIterations - 1) {
-      generator.create();
-      i++;
-    }
+    generator = new ROT.Map.Uniform(mapWidth, mapHeight);
     generator.create(function(x, y, v) {
-      if (v === 1) {
+      if (v === 0) {
         map[x][y] = Game.Tile.floorTile;
       } else {
         map[x][y] = Game.Tile.wallTile;

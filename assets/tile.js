@@ -3,17 +3,12 @@ Game.Tile = function(properties) {
   properties = properties || {};
   Game.Glyph.call(this, properties);
   this._isWalkable = properties['isWalkable'] || false;
-  this._isDiggable = properties['isDiggable'] || false;
 };
 
 Game.Tile.extend(Game.Glyph);
 
 Game.Tile.prototype.isWalkable = function() {
   return this._isWalkable;
-};
-
-Game.Tile.prototype.isDiggable = function() {
-  return this._isDiggable;
 };
 
 Game.Tile.nullTile = new Game.Tile({});
@@ -24,6 +19,38 @@ Game.Tile.floorTile = new Game.Tile({
 });
 
 Game.Tile.wallTile = new Game.Tile({
-  background: 'black',
-  isDiggable: true
+  background: 'black'
 });
+
+Game.Tile.stairsUpTile = new Game.Tile({
+  character: '',
+  foreground: 'white',
+  isWalkable: true
+});
+
+Game.Tile.stairsDownTile = new Game.Tile({
+  character: '',
+  foreground: 'white',
+  isWalkable: true
+});
+
+Game.getNeighborPositions = function(x, y) {
+  var dX, dY, tiles;
+  tiles = [];
+  dX = -1;
+  while (dX < 2) {
+    dY = -1;
+    while (dY < 2) {
+      if (dX === 0 && dY === 0) {
+        continue;
+      }
+      tiles.push({
+        x: x + dX,
+        y: y + dY
+      });
+      dY++;
+    }
+    dX++;
+  }
+  return tiles.randomize();
+};

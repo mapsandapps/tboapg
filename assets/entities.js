@@ -18,9 +18,6 @@ Game.Mixins.Moveable = {
       this._x = x;
       this._y = y;
       return true;
-    } else if (tile.isDiggable()) {
-      map.dig(x, y);
-      return true;
     }
     return false;
   }

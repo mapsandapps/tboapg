@@ -16,15 +16,28 @@
     <link href='http://fonts.googleapis.com/css?family=Exo+2' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="http://mollietaylor.com/files/bootstrap/fonts/font-awesome/css/font-awesome.min.css">
 
-    <style type="text/css">
-/*      body {
-        font-family: 'Exo 2',Helvetica,sans-serif;
-        margin: 5px;
-      }*/
-      
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-2.1.0.min.js"></script>
+
+    <style type="text/css">      
       body {
         font-family: 'FontAwesome';
         margin: 5px;
+        background-color: black;
+        color: white;
+      }
+
+      #game {
+        border: 1px white solid;
+        display: inline-block;
+      }
+
+      #credits {
+        cursor: pointer;
+      }
+
+      #info {
+        display: none;
       }
     </style>
 
@@ -56,15 +69,25 @@
     <script type="text/javascript" src="assets/entities.js"></script>
 
 
-<!--     <div>
-      &#xf06a; &#xf029; &#xf007;&#xf05b;&#xf057;&#xf05c;&#xf;</div> -->
+<!--     <div>&#xf06a; &#xf029; &#xf007;&#xf05b;&#xf057;&#xf05c;&#xf;</div> -->
+<!-- up & down -->
+      <!-- <div>&#xf01a;&#xf01b;&#xf062;&#xf063;&#xf077;&#xf078;</div> -->
     <div id="credits">
-      Credits:
-      <ul>
-        <li>Game by <a href="http://proximityviz.com/">Proximity Viz</a>
-        <li><a href="http://fortawesome.github.io/Font-Awesome/">Font Awesome</a>
-        <li>Based on <a href="http://www.codingcookies.com/2013/04/01/building-a-roguelike-in-javascript-part-1/">this tutorial</a>
-      </ul>
+      &#xf05a;</a>
+      <div id="info">
+        Credits:
+        <ul>
+          <li>Game by <a href="http://proximityviz.com/">Proximity Viz</a></li>
+          <li><a href="http://fortawesome.github.io/Font-Awesome/">Font Awesome</a></li>
+          <li>Based on <a href="http://www.codingcookies.com/2013/04/01/building-a-roguelike-in-javascript-part-1/">this tutorial</a></li>
+        </ul>
+      </div>
     </div>
+
+    <script type="text/javascript">
+      $('#credits').click(function() {
+        $('#info').toggle();
+      });
+    </script>
   </body>
 </html>

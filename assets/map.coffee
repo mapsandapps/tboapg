@@ -13,7 +13,7 @@ Game.Map = (tiles, player) ->
   @addEntityAtRandomPosition player
   # add random fungi
   i = 0
-  while i < 1000
+  while i < 10
     @addEntityAtRandomPosition new Game.Entity(Game.FungusTemplate)
     i++
   return
@@ -32,10 +32,10 @@ Game.Map::getTile = (x, y) ->
   else
     @_tiles[x][y] or Game.Tile.nullTile
 
-Game.Map::dig = (x, y) ->
-  # if the tile is diggable, update it to a floor
-  if @getTile(x, y).isDiggable()
-    @_tiles[x][y] = Game.Tile.floorTile
+# Game.Map::dig = (x, y) ->
+#   # if the tile is diggable, update it to a floor
+#   if @getTile(x, y).isDiggable()
+#     @_tiles[x][y] = Game.Tile.floorTile
 
 Game.Map::isEmptyFloor = (x, y) ->
   # check if the tile is floor and has no entity

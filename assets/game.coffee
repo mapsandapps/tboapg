@@ -2,7 +2,7 @@ Game =
   _display: null
   _currentScreen: null
   _screenWidth: 60
-  _screenHeight: 24
+  _screenHeight: 30
   init: ->
 
     @_display = new ROT.Display(
