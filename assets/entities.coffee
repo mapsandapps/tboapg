@@ -1,55 +1,17 @@
 # create or mixins namespace
 Game.Mixins = {}
 
-# define our moveable mixin
-Game.Mixins.Moveable = 
-  name: 'Moveable'
-  tryMove: (x, y, z, map) ->
-    map = @getMap()
-    # must use starting z
-    tile = map.getTile(x, y, @getZ())
-    currentTile = map.getTile(@getX(), @getY(), @getZ())
-    target = map.getEntityAt(x, y, @getZ())
-    # if our z level changed, check if we are on stair
-    if z < @getZ()
-      unless currentTile is Game.Tile.stairsUpTile
-        Game.sendMessage this, "You can't go up here!"
-      else
-        Game.sendMessage this, "You ascend to level %d!", [z + 1]
-        @setPosition x, y, z
-
-    else if z > @getZ()
-      unless currentTile is Game.Tile.stairsDownTile
-        Game.sendMessage this, "You can't go down here!"
-      else
-        @setPosition(x, y, z)
-        Game.sendMessage this, "You descend to level %d!", [z + 1]
-    # if an entity was at the tile
-    else if target
-      # if we are an attacker, try to attack the target
-      if @hasMixin('Attacker')
-        @attack target
-        return true
-      else
-        # can't move to the tile
-        return false 
-    # check if tile is stairs, if so, let player know what to do
-    else if tile is Game.Tile.stairsDownTile or tile is Game.Tile.stairsUpTile
-      Game.sendMessage this, "Press 'u' to go upstairs or 'd' to go downstairs."
-      @setPosition x, y, z
-      return true
-    # check if we can walk on the tile
-    else if tile.isWalkable()
-      # update the entity's position
-      @setPosition x, y, z
-      return true
-    false
-
 # main player's actor mixin
 Game.Mixins.PlayerActor = 
   name: 'PlayerActor'
   groupName: 'Actor'
-  act: ->
+  act: (overkillMessage) ->
+    # detect if game is over
+    if @getHp() < 1
+      Game.Screen.playScreen.setGameEnded true
+      # send a last message to the player
+      Game.sendMessage this, overkillMessage + ' You have died... Press [Enter] to continue!'
+
     # re-render screen
     Game.refresh()
     # lock engine and wait for player to press a key
@@ -62,6 +24,21 @@ Game.Mixins.FungusActor =
   name: 'FungusActor'
   groupName: 'Actor'
   act: ->
+
+# an entity that simply wanders around
+Game.Mixins.WanderActor = 
+  name: 'WanderActor'
+  groupName: 'Actor'
+  act: ->
+    # flip coin to determine if moving by 1 in positive or negative direction
+    moveOffset = (if (Math.round(Math.random()) is 1) then 1 else -1)
+
+    # flip coin to determine x or y
+    if Math.round(Math.random()) is 1
+      @tryMove @getX() + moveOffset, @getY(), @getZ()
+    else
+      @tryMove @getX(), @getY() + moveOffset, @getZ()
+    return
 
 Game.Mixins.Attacker = 
   name: 'Attacker'
@@ -117,11 +94,11 @@ Game.Mixins.Destructible =
         @getName()
         overkillMessage
       ]
-      Game.sendMessage this, 'You die!', [
-        0 - @_hp
-        overkillMessage
-      ]
-      @getMap().removeEntity this
+      # check if the player died. if so, call their act method to prompt user
+      if @hasMixin(Game.Mixins.PlayerActor)
+        @act(overkillMessage)
+      else
+        @getMap().removeEntity this
     return
 
 Game.Mixins.MessageRecipient = 
@@ -175,11 +152,10 @@ Game.sendMessageNearby = (map, centerX, centerY, centerZ, message, args) ->
 Game.PlayerTemplate = 
   character: ''
   foreground: 'white'
-  maxHp: 40
+  maxHp: 2
   attackValue: 10
   sightRadius: 6
   mixins: [
-    Game.Mixins.Moveable
     Game.Mixins.PlayerActor
     Game.Mixins.Attacker
     Game.Mixins.Destructible
@@ -194,5 +170,29 @@ Game.FungusTemplate =
   maxHp: 10
   mixins: [
     Game.Mixins.FungusActor
+    Game.Mixins.Destructible
+  ]
+
+Game.BatTemplate = 
+  name: 'bat'
+  character: 'B'
+  foreground: 'white'
+  maxHp: 5
+  attackValue: 10
+  mixins: [
+    Game.Mixins.WanderActor
+    Game.Mixins.Attacker
+    Game.Mixins.Destructible
+  ]
+
+Game.NewtTemplate = 
+  name: 'newt'
+  character: ':'
+  foreground: 'red'
+  maxHp: 3
+  attackValue: 10
+  mixins: [
+    Game.Mixins.WanderActor
+    Game.Mixins.Attacker
     Game.Mixins.Destructible
   ]

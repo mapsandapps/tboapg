@@ -6,14 +6,14 @@ downLoc = [];
 upLoc = [];
 
 Game.Map = function(tiles, player) {
-  var downPos, i, upPos, z;
+  var downPos, i, template, templates, upPos, z;
   this._tiles = tiles;
   this._depth = tiles.length;
   this._width = tiles[0].length;
   this._height = tiles[0][0].length;
   this._fov = [];
   this.setupFov();
-  this._entities = [];
+  this._entities = {};
   this._scheduler = new ROT.Scheduler.Simple();
   this._engine = new ROT.Engine(this._scheduler);
   this.addEntityAtRandomPosition(player, 0);
@@ -39,11 +39,13 @@ Game.Map = function(tiles, player) {
     });
     z++;
   }
+  templates = [Game.FungusTemplate, Game.BatTemplate, Game.NewtTemplate];
   z = 0;
   while (z < this._depth) {
     i = 0;
     while (i < 10) {
-      this.addEntityAtRandomPosition(new Game.Entity(Game.FungusTemplate), z);
+      template = templates[Math.floor(Math.random() * templates.length)];
+      this.addEntityAtRandomPosition(new Game.Entity(template), z);
       i++;
     }
     z++;
@@ -158,43 +160,23 @@ Game.Map.prototype.getEntities = function() {
 };
 
 Game.Map.prototype.getEntityAt = function(x, y, z) {
-  var i;
-  i = 0;
-  while (i < this._entities.length) {
-    if (this._entities[i].getX() === x && this._entities[i].getY() === y && this._entities[i].getZ() === z) {
-      return this._entities[i];
-    }
-    i++;
-  }
-  return false;
+  return this._entities[x + ',' + y + ',' + z];
 };
 
 Game.Map.prototype.getEntitiesWithinRadius = function(centerX, centerY, centerZ, radius) {
-  var bottomY, i, leftX, results, rightX, topY;
+  var bottomY, entity, key, leftX, results, rightX, topY;
   results = [];
   leftX = centerX - radius;
   rightX = centerX + radius;
   topY = centerY - radius;
   bottomY = centerY + radius;
-  i = 0;
-  while (i < this._entities.length) {
-    if (this._entities[i].getX() >= leftX && this._entities[i].getX() <= rightX && this._entities[i].getY() >= topY && this._entities[i].getY() <= bottomY && this._entities[i].getZ() === centerZ) {
-      results.push(this._entities[i]);
+  for (key in this._entities) {
+    entity = this._entities[key];
+    if (entity.getX() >= leftX && entity.getX() <= rightX && entity.getY() >= topY && entity.getY() <= bottomY && entity.getZ() === centerZ) {
+      results.push(entity);
     }
-    i++;
   }
   return results;
-};
-
-Game.Map.prototype.addEntity = function(entity) {
-  if (entity.getX() < 0 || entity.getX() >= this._width || entity.getY() < 0 || entity.getY() >= this._height || entity.getZ() < 0 || entity.getZ() >= this._depth) {
-    throw new Error('Adding entity out of bounds.');
-  }
-  entity.setMap(this);
-  this._entities.push(entity);
-  if (entity.hasMixin('Actor')) {
-    return this._scheduler.add(entity, true);
-  }
 };
 
 Game.Map.prototype.addEntityAtRandomPosition = function(entity, z) {
@@ -206,17 +188,39 @@ Game.Map.prototype.addEntityAtRandomPosition = function(entity, z) {
   this.addEntity(entity);
 };
 
+Game.Map.prototype.addEntity = function(entity) {
+  entity.setMap(this);
+  this.updateEntityPosition(entity);
+  if (entity.hasMixin('Actor')) {
+    return this._scheduler.add(entity, true);
+  }
+};
+
 Game.Map.prototype.removeEntity = function(entity) {
-  var i;
-  i = 0;
-  while (i < this._entities.length) {
-    if (this._entities[i] === entity) {
-      this._entities.splice(i, 1);
-      break;
-    }
-    i++;
+  var key;
+  key = entity.getX() + ',' + entity.getY() + ',' + entity.getZ();
+  if (this._entities[key] === entity) {
+    delete this._entities[key];
   }
   if (entity.hasMixin('Actor')) {
     this._scheduler.remove(entity);
   }
+};
+
+Game.Map.prototype.updateEntityPosition = function(entity, oldX, oldY, oldZ) {
+  var key, oldKey;
+  if (oldX) {
+    oldKey = oldX + ',' + oldY + ',' + oldZ;
+    if (this._entities[oldKey] === entity) {
+      delete this._entities[oldKey];
+    }
+  }
+  if (entity.getX() < 0 || entity.getX() >= this._width || entity.getY() < 0 || entity.getY() >= this._height || entity.getZ() < 0 || entity.getZ() >= this._depth) {
+    throw new Error("Entity's position is out of bounds.");
+  }
+  key = entity.getX() + ',' + entity.getY() + ',' + entity.getZ();
+  if (this._entities[key]) {
+    throw new Error('Tried to add an entity at an occupied position.');
+  }
+  this._entities[key] = entity;
 };

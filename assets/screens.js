@@ -39,7 +39,7 @@ Game.Screen.playScreen = {
     console.log("Exited play screen.");
   },
   render: function(display) {
-    var background, currentDepth, entities, entity, i, map, messageY, messages, screenHeight, screenWidth, stats, tile, topLeftX, topLeftY, visibleCells, x, y;
+    var background, currentDepth, entities, entity, i, key, map, messageY, messages, screenHeight, screenWidth, stats, tile, topLeftX, topLeftY, visibleCells, x, y;
     screenWidth = Game.getScreenWidth();
     screenHeight = Game.getScreenHeight();
     topLeftX = Math.max(0, this._player.getX() - (screenWidth / 2));
@@ -67,15 +67,13 @@ Game.Screen.playScreen = {
       x++;
     }
     entities = this._map.getEntities();
-    i = 0;
-    while (i < entities.length) {
-      entity = entities[i];
+    for (key in entities) {
+      entity = entities[key];
       if (entity.getX() >= topLeftX && entity.getY() >= topLeftY && entity.getX() < topLeftX + screenWidth && entity.getY() < topLeftY + screenHeight && entity.getZ() === this._player.getZ()) {
         if (visibleCells[entity.getX() + ',' + entity.getY()]) {
           display.draw(entity.getX() - topLeftX, entity.getY() - topLeftY, entity.getChar(), entity.getForeground(), entity.getBackground());
         }
       }
-      i++;
     }
     messages = this._player.getMessages();
     messageY = 0;
@@ -90,6 +88,12 @@ Game.Screen.playScreen = {
   },
   handleInput: function(inputType, inputData) {
     var currentZ, newZ;
+    if (this._gameEnded) {
+      if (inputType === 'keydown' && inputData.keyCode === ROT.VK_RETURN) {
+        Game.switchScreen(Game.Screen.loseScreen);
+      }
+      return;
+    }
     if (inputType === 'keydown') {
       if (inputData.keyCode === ROT.VK_RETURN) {
         Game.switchScreen(Game.Screen.winScreen);
@@ -124,6 +128,9 @@ Game.Screen.playScreen = {
     newY = this._player.getY() + dY;
     newZ = this._player.getZ() + dZ;
     this._player.tryMove(newX, newY, newZ, this._map);
+  },
+  setGameEnded: function(gameEnded) {
+    this._gameEnded = gameEnded;
   }
 };
 

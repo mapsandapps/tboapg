@@ -60,9 +60,16 @@ Game.Entity.prototype.setMap = function(map) {
 };
 
 Game.Entity.prototype.setPosition = function(x, y, z) {
+  var oldX, oldY, oldZ;
+  oldX = this._x;
+  oldY = this._y;
+  oldZ = this._z;
   this._x = x;
   this._y = y;
-  return this._z = z;
+  this._z = z;
+  if (this._map) {
+    return this._map.updateEntityPosition(this, oldX, oldY, oldZ);
+  }
 };
 
 Game.Entity.prototype.getName = function() {
@@ -83,4 +90,41 @@ Game.Entity.prototype.getZ = function() {
 
 Game.Entity.prototype.getMap = function() {
   return this._map;
+};
+
+Game.Entity.prototype.tryMove = function(x, y, z, map) {
+  var currentTile, target, tile;
+  map = this.getMap();
+  tile = map.getTile(x, y, this.getZ());
+  currentTile = map.getTile(this.getX(), this.getY(), this.getZ());
+  target = map.getEntityAt(x, y, this.getZ());
+  if (z < this.getZ()) {
+    if (currentTile !== Game.Tile.stairsUpTile) {
+      Game.sendMessage(this, "You can't go up here!");
+    } else {
+      Game.sendMessage(this, "You ascend to level %d!", [z + 1]);
+      this.setPosition(x, y, z);
+    }
+  } else if (z > this.getZ()) {
+    if (currentTile !== Game.Tile.stairsDownTile) {
+      Game.sendMessage(this, "You can't go down here!");
+    } else {
+      this.setPosition(x, y, z);
+      Game.sendMessage(this, "You descend to level %d!", [z + 1]);
+    }
+  } else if (target) {
+    if (this.hasMixin("Attacker") && (this.hasMixin(Game.Mixins.PlayerActor) || target.hasMixin(Game.Mixins.PlayerActor))) {
+      this.attack(target);
+      return true;
+    }
+    return false;
+  } else if (tile === Game.Tile.stairsDownTile || tile === Game.Tile.stairsUpTile) {
+    Game.sendMessage(this, "Press 'u' to go upstairs or 'd' to go downstairs.");
+    this.setPosition(x, y, z);
+    return true;
+  } else if (tile.isWalkable()) {
+    this.setPosition(x, y, z);
+    return true;
+  }
+  return false;
 };

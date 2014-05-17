@@ -10,8 +10,8 @@ Game.Map = (tiles, player) ->
   # set up the field of vision
   @_fov = []
   @setupFov()
-  # create a list that will hold the entities
-  @_entities = []
+  # create a table that will hold the entities
+  @_entities = {}
 
   # create the engine and scheduler
   @_scheduler = new ROT.Scheduler.Simple()
@@ -43,12 +43,29 @@ Game.Map = (tiles, player) ->
     )
     z++
 
-  # add random fungi
+  # # add random fungi
+  # z = 0
+  # while z < @_depth
+  #   i = 0
+  #   while i < 10
+  #     @addEntityAtRandomPosition new Game.Entity(Game.FungusTemplate), z
+  #     i++
+  #   z++
+
+  # add random enemies to each floor
+  templates = [
+    Game.FungusTemplate
+    Game.BatTemplate
+    Game.NewtTemplate
+  ]
   z = 0
   while z < @_depth
     i = 0
     while i < 10
-      @addEntityAtRandomPosition new Game.Entity(Game.FungusTemplate), z
+      # randomly select a template
+      template = templates[Math.floor(Math.random() * templates.length)]
+      # place the entity
+      @addEntityAtRandomPosition new Game.Entity(template), z
       i++
     z++
 
@@ -153,14 +170,8 @@ Game.Map::getEntities = ->
   @_entities
 
 Game.Map::getEntityAt = (x, y, z) ->
-  # iterate through all entities searching for one with
-  # matching position
-  i = 0
-  while i < @_entities.length
-    return @_entities[i] if @_entities[i].getX() is x and @_entities[i].getY() is y and
-                            @_entities[i].getZ() is z
-    i++
-  return false
+  # get the entity based on position key
+  @_entities[x + ',' + y + ',' + z]
 
 Game.Map::getEntitiesWithinRadius = (centerX, centerY, centerZ, radius) ->
   results = []
@@ -170,30 +181,14 @@ Game.Map::getEntitiesWithinRadius = (centerX, centerY, centerZ, radius) ->
   topY = centerY - radius
   bottomY = centerY + radius
   # iterate through entities, adding any within bounds
-  i = 0
-  while i < @_entities.length
-    if @_entities[i].getX() >= leftX and
-       @_entities[i].getX() <= rightX and
-       @_entities[i].getY() >= topY and
-       @_entities[i].getY() <= bottomY and
-       @_entities[i].getZ() is centerZ
-      results.push(@_entities[i])
-    i++
-  return results
-
-Game.Map::addEntity = (entity) ->
-  # make sure entity's position is within bounds
-  if entity.getX() < 0 or entity.getX() >= @_width or 
-     entity.getY() < 0 or entity.getY() >= @_height or
-     entity.getZ() < 0 or entity.getZ() >= @_depth
-    throw new Error('Adding entity out of bounds.')
-  # update the entity's map
-  entity.setMap this
-  # add entity to list of entities
-  @_entities.push entity
-  # check if entity is actor, if so, add to scheduler
-  if entity.hasMixin('Actor')
-    @_scheduler.add entity, true
+  for key of @_entities
+    entity = @_entities[key]
+    results.push entity  if entity.getX() >= leftX and 
+                            entity.getX() <= rightX and 
+                            entity.getY() >= topY and 
+                            entity.getY() <= bottomY and 
+                            entity.getZ() is centerZ
+  results
 
 Game.Map::addEntityAtRandomPosition = (entity, z) ->
   position = @getRandomFloorPosition(z)
@@ -203,17 +198,39 @@ Game.Map::addEntityAtRandomPosition = (entity, z) ->
   @addEntity entity
   return
 
+Game.Map::addEntity = (entity) ->
+  # update the entity's map
+  entity.setMap this
+  # update map with the entity's position
+  @updateEntityPosition(entity)
+  # check if entity is actor, if so, add to scheduler
+  if entity.hasMixin('Actor')
+    @_scheduler.add entity, true
+
 Game.Map::removeEntity = (entity) ->
-  # find the entity in the list of entities
-  i = 0
-  while i < @_entities.length
-    if @_entities[i] is entity
-      @_entities.splice i, 1
-      break
-    i++
+  # remove the entity from the map
+  key = entity.getX() + ',' + entity.getY() + ',' + entity.getZ()
+  delete @_entities[key]  if @_entities[key] is entity
   # if the entity is an actor, remove them from scheduler
   @_scheduler.remove entity if entity.hasMixin('Actor')
   return
 
+Game.Map::updateEntityPosition = (entity, oldX, oldY, oldZ) ->
+  # delete the old key if it is the same entity and we have old positions
+  if oldX
+    oldKey = oldX + ',' + oldY + ',' + oldZ
+    delete @_entities[oldKey]  if @_entities[oldKey] is entity
+  # make sure the entity's position is within bounds
+  throw new Error("Entity's position is out of bounds.")  if entity.getX() < 0 or entity.getX() >= @_width or
+     entity.getY() < 0 or entity.getY() >= @_height or
+     entity.getZ() < 0 or entity.getZ() >= @_depth
+    
+  # sanity check to make sure there is no entity at the new position
+  key = entity.getX() + ',' + entity.getY() + ',' + entity.getZ()
+  throw new Error('Tried to add an entity at an occupied position.')  if @_entities[key]
+    
+  # add entity to table of entities
+  @_entities[key] = entity
+  return
 
 

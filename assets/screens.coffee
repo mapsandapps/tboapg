@@ -93,9 +93,8 @@ Game.Screen.playScreen =
 
     # render entities
     entities = @_map.getEntities()
-    i = 0
-    while i < entities.length
-      entity = entities[i]
+    for key of entities
+      entity = entities[key]
       # only render entity if it would show on screen
       if entity.getX() >= topLeftX and 
          entity.getY() >= topLeftY and 
@@ -110,7 +109,6 @@ Game.Screen.playScreen =
             entity.getForeground()
             entity.getBackground()
           )
-      i++
 
     # get messages in player's queue and render
     messages = @_player.getMessages()
@@ -135,6 +133,11 @@ Game.Screen.playScreen =
     return
 
   handleInput: (inputType, inputData) ->
+    # if the game is over, enter will bring user to losing screen
+    if @_gameEnded
+      Game.switchScreen Game.Screen.loseScreen  if inputType is 'keydown' and inputData.keyCode is ROT.VK_RETURN
+      # return to make sure user can't still play
+      return
     if inputType is 'keydown'
       if inputData.keyCode is ROT.VK_RETURN
         Game.switchScreen Game.Screen.winScreen
@@ -169,6 +172,10 @@ Game.Screen.playScreen =
     newZ = @_player.getZ() + dZ
     # try to move to the new cell
     @_player.tryMove newX, newY, newZ, @_map
+    return
+
+  setGameEnded: (gameEnded) ->
+    @_gameEnded = gameEnded
     return
 
 # win screen
