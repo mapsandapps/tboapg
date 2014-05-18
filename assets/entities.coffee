@@ -164,21 +164,21 @@ Game.PlayerTemplate =
   ]
 
 # Create our central entity repository
-Game.EntityRepository = new Game.Repository("entities", Game.Entity)
-Game.EntityRepository.define "fungus",
-  name: "fungus"
-  character: "F"
-  foreground: "green"
+Game.EntityRepository = new Game.Repository('entities', Game.Entity)
+Game.EntityRepository.define 'fungus',
+  name: 'fungus'
+  character: 'F'
+  foreground: 'green'
   maxHp: 10
   mixins: [
     Game.Mixins.FungusActor
     Game.Mixins.Destructible
   ]
 
-Game.EntityRepository.define "bat",
-  name: "bat"
-  character: "B"
-  foreground: "white"
+Game.EntityRepository.define 'bat',
+  name: 'bat'
+  character: 'B'
+  foreground: 'white'
   maxHp: 5
   attackValue: 4
   mixins: [
@@ -187,10 +187,10 @@ Game.EntityRepository.define "bat",
     Game.Mixins.Destructible
   ]
 
-Game.EntityRepository.define "newt",
-  name: "newt"
-  character: ":"
-  foreground: "yellow"
+Game.EntityRepository.define 'newt',
+  name: 'newt'
+  character: ':'
+  foreground: 'yellow'
   maxHp: 3
   attackValue: 2
   mixins: [
@@ -204,49 +204,44 @@ Game.BossRepository = new Game.Repository('entities', Game.Entity)
 Game.BossRepository.define 'plant',
   name: 'plant'
   character: ''
-  foreground: 'red'
+  foreground: 'hotPink'
   maxHp: 10
   mixins: [
     Game.Mixins.WanderActor
-    Game.Mixins.Destructible
   ]
 
 Game.BossRepository.define 'moon',
   name: 'moon'
   character: ''
-  foreground: 'red'
+  foreground: 'hotPink'
   maxHp: 10
   mixins: [
     Game.Mixins.WanderActor
-    Game.Mixins.Destructible
   ]
   
 Game.BossRepository.define 'cloud',
   name: 'cloud'
   character: ''
-  foreground: 'red'
+  foreground: 'hotPink'
   maxHp: 10
   mixins: [
     Game.Mixins.WanderActor
-    Game.Mixins.Destructible
   ]
   
 Game.BossRepository.define 'lock',
   name: 'lock'
   character: ''
-  foreground: 'red'
+  foreground: 'hotPink'
   maxHp: 10
   mixins: [
     Game.Mixins.WanderActor
-    Game.Mixins.Destructible
   ]
   
 Game.BossRepository.define 'fire',
   name: 'fire'
   character: ''
-  foreground: 'red'
+  foreground: 'hotPink'
   maxHp: 10
   mixins: [
     Game.Mixins.WanderActor
-    Game.Mixins.Destructible
   ]
