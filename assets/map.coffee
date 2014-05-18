@@ -54,6 +54,14 @@ Game.Map = (tiles, player) ->
     'extinguisher'
   ]
   items = items.randomize()
+  bosses = [
+    'plant'
+    'moon'
+    'cloud'
+    'lock'
+    'fire'
+  ]
+  bosses = bosses.randomize()
   # Add random entities and items to each floor.
   z = 0
 
@@ -71,6 +79,10 @@ Game.Map = (tiles, player) ->
     # 1 item per floor
     item = items[z]
     @addItemAtRandomPosition Game.ItemRepository.create(item), z
+
+    # 1 boss per floor
+    boss = bosses[z]
+    @addEntityAtRandomPosition Game.BossRepository.create(boss), z
     z++
 
   # set up the explored array

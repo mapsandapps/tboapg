@@ -198,3 +198,55 @@ Game.EntityRepository.define "newt",
     Game.Mixins.Attacker
     Game.Mixins.Destructible
   ]
+
+# create our boss repository
+Game.BossRepository = new Game.Repository('entities', Game.Entity)
+Game.BossRepository.define 'plant',
+  name: 'plant'
+  character: ''
+  foreground: 'red'
+  maxHp: 10
+  mixins: [
+    Game.Mixins.WanderActor
+    Game.Mixins.Destructible
+  ]
+
+Game.BossRepository.define 'moon',
+  name: 'moon'
+  character: ''
+  foreground: 'red'
+  maxHp: 10
+  mixins: [
+    Game.Mixins.WanderActor
+    Game.Mixins.Destructible
+  ]
+  
+Game.BossRepository.define 'cloud',
+  name: 'cloud'
+  character: ''
+  foreground: 'red'
+  maxHp: 10
+  mixins: [
+    Game.Mixins.WanderActor
+    Game.Mixins.Destructible
+  ]
+  
+Game.BossRepository.define 'lock',
+  name: 'lock'
+  character: ''
+  foreground: 'red'
+  maxHp: 10
+  mixins: [
+    Game.Mixins.WanderActor
+    Game.Mixins.Destructible
+  ]
+  
+Game.BossRepository.define 'fire',
+  name: 'fire'
+  character: ''
+  foreground: 'red'
+  maxHp: 10
+  mixins: [
+    Game.Mixins.WanderActor
+    Game.Mixins.Destructible
+  ]
