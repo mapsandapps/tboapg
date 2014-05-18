@@ -115,7 +115,7 @@ Game.Entity::tryMove = (x, y, z, map) ->
   else if target
     # an entity can only attack if the entity has the Attacker mixin and
     # either the entity or the target is the player
-    if @hasMixin("Attacker") and (@hasMixin(Game.Mixins.PlayerActor) or target.hasMixin(Game.Mixins.PlayerActor))
+    if @hasMixin("Attacker") and (@hasMixin(Game.EntityMixins.PlayerActor) or target.hasMixin(Game.EntityMixins.PlayerActor))
       @attack target
       return true
     # can't move to the tile

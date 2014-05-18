@@ -113,7 +113,7 @@ Game.Entity.prototype.tryMove = function(x, y, z, map) {
       Game.sendMessage(this, "You descend to level %d!", [z + 1]);
     }
   } else if (target) {
-    if (this.hasMixin("Attacker") && (this.hasMixin(Game.Mixins.PlayerActor) || target.hasMixin(Game.Mixins.PlayerActor))) {
+    if (this.hasMixin("Attacker") && (this.hasMixin(Game.EntityMixins.PlayerActor) || target.hasMixin(Game.EntityMixins.PlayerActor))) {
       this.attack(target);
       return true;
     }
