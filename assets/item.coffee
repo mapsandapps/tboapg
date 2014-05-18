@@ -8,6 +8,21 @@ Game.Item = (properties) ->
   @_name = properties['name'] or ''
   return
 
-
 # Make items inherit all the functionality from glyphs
 Game.Item.extend Game.Glyph
+
+Game.Item::describe = ->
+  @_name
+
+Game.Item::describeA = (capitalize) ->
+  prefixes = (if capitalize then [
+    'A'
+    'An'
+  ] else [
+    'a'
+    'an'
+  ])
+  string = @describe()
+  firstLetter = string.charAt(0).toLowerCase()
+  prefix = (if 'aeiou'.indexOf(firstLetter) >= 0 then 1 else 0)
+  prefixes[prefix] + ' ' + string

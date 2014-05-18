@@ -148,6 +148,77 @@ Game.sendMessageNearby = (map, centerX, centerY, centerZ, message, args) ->
     i++
   return
 
+Game.Mixins.InventoryHolder = 
+  name: 'InventoryHolder'
+  init: (template) ->
+    # default to 8 slots
+    inventorySlots = template['inventorySlots'] or 8
+    # set up an empty inventory
+    @_items = new Array(inventorySlots)
+    return
+
+  getItems: ->
+    @_items
+
+  getItem: (i) ->
+    @_items[i]
+
+  addItem: (item) ->
+    # try to find a slot, returning true only if we could add the item
+    i = 0
+    while i < @_items.length
+      unless @_items[i]
+        @_items[i] = item
+        return true
+      i++
+    false
+
+  removeItem: (i) ->
+    # clear the inventory slot
+    @_items[i] = null
+    return
+
+  canAddItem: ->
+    # check if we have an empty slot
+    i = 0
+    while i < @_items.length
+      return true  unless @_items[i]
+      i++
+    false
+
+  pickupItems: (indices) ->
+    # allows the user to pick up items from the map
+    # indices is the indices for the array returned by map.getItemsAt
+    mapItems = @_map.getItemsAt(@getX(), @getY(), @getZ())
+    added = 0
+    # iterate through a ll indices
+    i = 0
+    while i < indices.length
+      # try to add the item
+      # if inventory is not full, splice item out of list of items
+      # offset number of items already added
+      if @addItem(mapItems[indices[i] - added])
+        mapItems.splice indices[i] - added, 1
+        added++
+      else
+        # inventory is full
+        break
+      i++
+    # update the map items
+    @_map.setItemsAt @getX(), @getY(), @getZ(), mapItems
+    # return true only if we added all the items
+    added is indices.length
+
+  dropItem: (i) ->
+    # drop item to current tile
+    if @_items[i]
+      if @_map
+        @_map.addItem @getX(), @getY(), @getZ(), @_items[i]
+      @removeItem(i)
+    return
+
+
+
 # player template
 Game.PlayerTemplate = 
   character: ''
@@ -155,10 +226,12 @@ Game.PlayerTemplate =
   maxHp: 40
   attackValue: 10
   sightRadius: 6
+  inventorySlots: 10
   mixins: [
     Game.Mixins.PlayerActor
     Game.Mixins.Attacker
     Game.Mixins.Destructible
+    Game.Mixins.InventoryHolder
     Game.Mixins.MessageRecipient
     Game.Mixins.Sight
   ]

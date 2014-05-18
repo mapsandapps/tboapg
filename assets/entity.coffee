@@ -131,5 +131,12 @@ Game.Entity::tryMove = (x, y, z, map) ->
   else if tile.isWalkable()
     # update the entity's position
     @setPosition x, y, z
+    # notify the entity that there are items here
+    items = @getMap().getItemsAt(x, y, z)
+    if items
+      if items.length is 1
+        Game.sendMessage(this, 'You see %s.', [items[0].describeA()])
+      else
+        Game.sendMessage(this, 'There are several objects here')
     return true
   false

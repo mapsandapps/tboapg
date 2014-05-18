@@ -25,6 +25,8 @@ Game.Screen.startScreen = {
 Game.Screen.playScreen = {
   _map: null,
   _player: null,
+  _gameEnded: false,
+  _subScreen: null,
   enter: function() {
     var depth, height, tiles, width;
     width = Game.getScreenWidth();
@@ -40,6 +42,10 @@ Game.Screen.playScreen = {
   },
   render: function(display) {
     var background, currentDepth, foreground, glyph, i, items, map, messageY, messages, screenHeight, screenWidth, stats, topLeftX, topLeftY, visibleCells, x, y;
+    if (this._subScreen) {
+      this._subScreen.render(display);
+      return;
+    }
     screenWidth = Game.getScreenWidth();
     screenHeight = Game.getScreenHeight();
     topLeftX = Math.max(0, this._player.getX() - (screenWidth / 2));
@@ -92,11 +98,15 @@ Game.Screen.playScreen = {
     display.drawText(0, screenHeight, stats);
   },
   handleInput: function(inputType, inputData) {
-    var currentZ, newZ;
+    var currentZ, item, items, newZ;
     if (this._gameEnded) {
       if (inputType === 'keydown' && inputData.keyCode === ROT.VK_RETURN) {
         Game.switchScreen(Game.Screen.loseScreen);
       }
+      return;
+    }
+    if (this._subScreen) {
+      this._subScreen.handleInput(inputType, inputData);
       return;
     }
     if (inputType === 'keydown') {
@@ -119,6 +129,33 @@ Game.Screen.playScreen = {
         } else if (inputData.keyCode === ROT.VK_U) {
           newZ = this._player.getZ() - 1;
           this._player.tryMove(downLoc[newZ].x, downLoc[newZ].y, downLoc[newZ].z, this._map);
+        } else if (inputData.keyCode === ROT.VK_I) {
+          if (this._player.getItems().filter(function(x) {
+            return x;
+          }).length === 0) {
+            Game.sendMessage(this._player, 'You are not carrying anything!');
+            Game.refresh();
+          } else {
+            Game.Screen.inventoryScreen.setup(this._player, this._player.getItems());
+            this.setSubScreen(Game.Screen.inventoryScreen);
+          }
+          return;
+        } else if (inputData.keyCode === ROT.VK_COMMA) {
+          items = this._map.getItemsAt(this._player.getX(), this._player.getY(), this._player.getZ());
+          if (!items) {
+            Game.sendMessage(this._player('There is nothing here to pick up.'));
+          } else if (items.length === 1) {
+            item = items[0];
+            if (this._player.pickupItems([0])) {
+              Game.sendMessage(this._player, 'You pick up %s.', [item.describeA()]);
+            } else {
+              Game.sendMessage(this._player, 'Your inventory is full! Nothing was picked up.');
+            }
+          } else {
+            Game.Screen.pickupScreen.setup(this._player, items);
+            this.setSubScreen(Game.Screen.pickupScreen);
+            return;
+          }
         } else {
           return;
         }
@@ -135,6 +172,10 @@ Game.Screen.playScreen = {
   },
   setGameEnded: function(gameEnded) {
     this._gameEnded = gameEnded;
+  },
+  setSubScreen: function(subScreen) {
+    this._subScreen = subScreen;
+    Game.refresh();
   }
 };
 
@@ -179,3 +220,98 @@ Game.Screen.loseScreen = {
   },
   handleInput: function(inputType, inputData) {}
 };
+
+Game.Screen.ItemListScreen = function(template) {
+  this._caption = template['caption'];
+  this._okFunction = template['ok'];
+  this._canSelectItem = template['canSelect'];
+  this._canSelectMultipleItems = template['canSelectMultipleItems'];
+};
+
+Game.Screen.ItemListScreen.prototype.setup = function(player, items) {
+  this._player = player;
+  this._items = items;
+  this._selectedIndices = {};
+};
+
+Game.Screen.ItemListScreen.prototype.render = function(display) {
+  var i, number, numbers, row, selectionState;
+  numbers = '1234567890';
+  display.drawText(0, 0, this._caption);
+  row = 0;
+  i = 0;
+  while (i < this._items.length) {
+    if (this._items[i]) {
+      number = numbers.substring(i, i + 1);
+      selectionState = (this._canSelectItem && this._canSelectMultipleItems && this._selectedIndices[i] ? '+' : '-');
+      display.drawText(0, 2 + row, number + ' ' + selectionState + ' ' + this._items[i].describe());
+      row++;
+    }
+    i++;
+  }
+};
+
+Game.Screen.ItemListScreen.prototype.executeOkFunction = function() {
+  var key, selectedItems;
+  selectedItems = {};
+  for (key in this._selectedIndices) {
+    selectedItems[key] = this._items[key];
+  }
+  Game.Screen.playScreen.setSubScreen(undefined);
+  if (this._okFunction(selectedItems)) {
+    this._player.getMap().getEngine().unlock();
+  }
+};
+
+Game.Screen.ItemListScreen.prototype.handleInput = function(inputType, inputData) {
+  var index;
+  if (inputType === "keydown") {
+    if (inputData.keyCode === ROT.VK_ESCAPE || (inputData.keyCode === ROT.VK_RETURN && (!this._canSelectItem || Object.keys(this._selectedIndices).length === 0))) {
+      Game.Screen.playScreen.setSubScreen(undefined);
+    } else if (inputData.keyCode === ROT.VK_RETURN) {
+      this.executeOkFunction();
+    } else if (this._canSelectItem && inputData.keyCode >= ROT.VK_1 && inputData.keyCode <= ROT.VK_9) {
+      index = inputData.keyCode - ROT.VK_1;
+      if (this._items[index]) {
+        if (this._canSelectMultipleItems) {
+          if (this._selectedIndices[index]) {
+            delete this._selectedIndices[index];
+          } else {
+            this._selectedIndices[index] = true;
+          }
+          Game.refresh();
+        } else {
+          this._selectedIndices[index] = true;
+          this.executeOkFunction();
+        }
+      }
+    }
+  }
+};
+
+Game.Screen.inventoryScreen = new Game.Screen.ItemListScreen({
+  caption: "Inventory",
+  canSelect: false
+});
+
+Game.Screen.pickupScreen = new Game.Screen.ItemListScreen({
+  caption: "Choose the items you wish to pickup",
+  canSelect: true,
+  canSelectMultipleItems: true,
+  ok: function(selectedItems) {
+    if (!this._player.pickupItems(Object.keys(selectedItems))) {
+      Game.sendMessage(this._player, "Your inventory is full! Not all items were picked up.");
+    }
+    return true;
+  }
+});
+
+Game.Screen.dropScreen = new Game.Screen.ItemListScreen({
+  caption: "Choose the item you wish to drop",
+  canSelect: true,
+  canSelectMultipleItems: false,
+  ok: function(selectedItems) {
+    this._player.dropItem(Object.keys(selectedItems)[0]);
+    return true;
+  }
+});

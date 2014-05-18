@@ -6,3 +6,16 @@ Game.Item = function(properties) {
 };
 
 Game.Item.extend(Game.Glyph);
+
+Game.Item.prototype.describe = function() {
+  return this._name;
+};
+
+Game.Item.prototype.describeA = function(capitalize) {
+  var firstLetter, prefix, prefixes, string;
+  prefixes = (capitalize ? ['A', 'An'] : ['a', 'an']);
+  string = this.describe();
+  firstLetter = string.charAt(0).toLowerCase();
+  prefix = ('aeiou'.indexOf(firstLetter) >= 0 ? 1 : 0);
+  return prefixes[prefix] + ' ' + string;
+};

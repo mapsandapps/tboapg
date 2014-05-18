@@ -26,6 +26,8 @@ Game.Screen.startScreen =
 Game.Screen.playScreen =
   _map: null
   _player: null
+  _gameEnded: false
+  _subScreen: null
   enter: ->
     width = Game.getScreenWidth()
     height = Game.getScreenHeight()
@@ -45,6 +47,10 @@ Game.Screen.playScreen =
     return
 
   render: (display) ->
+    # render subscreen if there is one
+    if @_subScreen
+      @_subScreen.render display
+      return
     screenWidth = Game.getScreenWidth()
     screenHeight = Game.getScreenHeight()
     # make sure x-axis doesn't go left of left bound
@@ -141,6 +147,12 @@ Game.Screen.playScreen =
       Game.switchScreen Game.Screen.loseScreen  if inputType is 'keydown' and inputData.keyCode is ROT.VK_RETURN
       # return to make sure user can't still play
       return
+    
+    # handle subscreen input if there is one
+    if @_subScreen
+      @_subScreen.handleInput inputType, inputData
+      return
+
     if inputType is 'keydown'
       if inputData.keyCode is ROT.VK_RETURN
         Game.switchScreen Game.Screen.winScreen
@@ -162,6 +174,36 @@ Game.Screen.playScreen =
         else if inputData.keyCode is ROT.VK_U
           newZ = @_player.getZ() - 1
           @_player.tryMove downLoc[newZ].x, downLoc[newZ].y, downLoc[newZ].z, @_map
+        else if inputData.keyCode is ROT.VK_I
+          if @_player.getItems().filter((x) ->
+            x
+          ).length is 0
+
+            # if the player has no items, send a message and don't take a turn
+            Game.sendMessage @_player, 'You are not carrying anything!'
+            Game.refresh()
+          else
+            # show the inventory
+            Game.Screen.inventoryScreen.setup @_player, @_player.getItems()
+            @setSubScreen Game.Screen.inventoryScreen
+          return
+        else if inputData.keyCode is ROT.VK_COMMA
+          items = @_map.getItemsAt(@_player.getX(), @_player.getY(), @_player.getZ())
+          # if there are no items, show a message
+          unless items
+            Game.sendMessage @_player 'There is nothing here to pick up.'
+          else if items.length is 1
+            # if only one item, try to pick it up
+            item = items[0]
+            if @_player.pickupItems([0])
+              Game.sendMessage @_player, 'You pick up %s.', [item.describeA()]
+            else
+              Game.sendMessage @_player, 'Your inventory is full! Nothing was picked up.'
+          else
+            # show the pickup screen if there are any items
+            Game.Screen.pickupScreen.setup @_player, items
+            @setSubScreen Game.Screen.pickupScreen
+            return
         else # not a valid key
           return
         # unlock the engine
@@ -178,6 +220,12 @@ Game.Screen.playScreen =
 
   setGameEnded: (gameEnded) ->
     @_gameEnded = gameEnded
+    return
+
+  setSubScreen: (subScreen) ->
+    @_subScreen = subScreen
+    # refresh screen on changing subscreen
+    Game.refresh()
     return
 
 # win screen
@@ -223,4 +271,118 @@ Game.Screen.loseScreen =
   handleInput: (inputType, inputData) ->
     # nothing
     return
+
+Game.Screen.ItemListScreen = (template) ->
+  # set up based on the template
+  @_caption = template['caption']
+  @_okFunction = template['ok']
+  # whether the user can select items at all
+  @_canSelectItem = template['canSelect']
+  # whether the user can select multiple items
+  @_canSelectMultipleItems = template['canSelectMultipleItems']
+  return
+
+Game.Screen.ItemListScreen::setup = (player, items) ->
+  @_player = player
+  # should be called before switching to the screen
+  @_items = items
+  # clean set of selected indices
+  @_selectedIndices = {}
+  return
+
+Game.Screen.ItemListScreen::render = (display) ->
+  numbers = '1234567890'
+  # render caption in top row
+  display.drawText(0, 0, @_caption)
+  row = 0
+  i = 0
+  while i < @_items.length
+    # if we have an item, we want to render it
+    if @_items[i]
+      # get number matching item's index
+      number = numbers.substring(i, i + 1)
+      # if we selected an item, show a +, otherwise show a - between
+      # the number and the item's name
+      selectionState = (if (@_canSelectItem and @_canSelectMultipleItems and @_selectedIndices[i]) then '+' else '-')
+      # render at correct row and add 2
+      display.drawText 0, 2 + row, number + ' ' + selectionState + ' ' + @_items[i].describe()
+      row++
+    i++
+  return
+
+Game.Screen.ItemListScreen::executeOkFunction = ->
+  
+  # Gather the selected items.
+  selectedItems = {}
+  for key of @_selectedIndices
+    selectedItems[key] = @_items[key]
+  
+  # Switch back to the play screen.
+  Game.Screen.playScreen.setSubScreen `undefined`
+  
+  # Call the OK function and end the player's turn if it return true.
+  @_player.getMap().getEngine().unlock()  if @_okFunction(selectedItems)
+  return
+
+Game.Screen.ItemListScreen::handleInput = (inputType, inputData) ->
+  if inputType is "keydown"
+    
+    # If the user hit escape, hit enter and can't select an item, or hit
+    # enter without any items selected, simply cancel out
+    if inputData.keyCode is ROT.VK_ESCAPE or (inputData.keyCode is ROT.VK_RETURN and (not @_canSelectItem or Object.keys(@_selectedIndices).length is 0))
+      Game.Screen.playScreen.setSubScreen `undefined`
+    
+    # Handle pressing return when items are selected
+    else if inputData.keyCode is ROT.VK_RETURN
+      @executeOkFunction()
+    
+    # Handle pressing a letter if we can select
+    else if @_canSelectItem and inputData.keyCode >= ROT.VK_1 and inputData.keyCode <= ROT.VK_9
+      
+      # Check if it maps to a valid item by subtracting 'a' from the character
+      # to know what letter of the alphabet we used.
+      index = inputData.keyCode - ROT.VK_1
+      if @_items[index]
+        
+        # If multiple selection is allowed, toggle the selection status, else
+        # select the item and exit the screen
+        if @_canSelectMultipleItems
+          if @_selectedIndices[index]
+            delete @_selectedIndices[index]
+          else
+            @_selectedIndices[index] = true
+          
+          # Redraw screen
+          Game.refresh()
+        else
+          @_selectedIndices[index] = true
+          @executeOkFunction()
+  return
+
+Game.Screen.inventoryScreen = new Game.Screen.ItemListScreen(
+  caption: "Inventory"
+  canSelect: false
+)
+Game.Screen.pickupScreen = new Game.Screen.ItemListScreen(
+  caption: "Choose the items you wish to pickup"
+  canSelect: true
+  canSelectMultipleItems: true
+  ok: (selectedItems) ->
+    
+    # Try to pick up all items, messaging the player if they couldn't all be
+    # picked up.
+    Game.sendMessage @_player, "Your inventory is full! Not all items were picked up."  unless @_player.pickupItems(Object.keys(selectedItems))
+    true
+)
+Game.Screen.dropScreen = new Game.Screen.ItemListScreen(
+  caption: "Choose the item you wish to drop"
+  canSelect: true
+  canSelectMultipleItems: false
+  ok: (selectedItems) ->
+    
+    # Drop the selected item
+    @_player.dropItem Object.keys(selectedItems)[0]
+    true
+)
+
 

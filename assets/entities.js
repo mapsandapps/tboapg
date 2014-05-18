@@ -145,13 +145,80 @@ Game.sendMessageNearby = function(map, centerX, centerY, centerZ, message, args)
   }
 };
 
+Game.Mixins.InventoryHolder = {
+  name: 'InventoryHolder',
+  init: function(template) {
+    var inventorySlots;
+    inventorySlots = template['inventorySlots'] || 8;
+    this._items = new Array(inventorySlots);
+  },
+  getItems: function() {
+    return this._items;
+  },
+  getItem: function(i) {
+    return this._items[i];
+  },
+  addItem: function(item) {
+    var i;
+    i = 0;
+    while (i < this._items.length) {
+      if (!this._items[i]) {
+        this._items[i] = item;
+        return true;
+      }
+      i++;
+    }
+    return false;
+  },
+  removeItem: function(i) {
+    this._items[i] = null;
+  },
+  canAddItem: function() {
+    var i;
+    i = 0;
+    while (i < this._items.length) {
+      if (!this._items[i]) {
+        return true;
+      }
+      i++;
+    }
+    return false;
+  },
+  pickupItems: function(indices) {
+    var added, i, mapItems;
+    mapItems = this._map.getItemsAt(this.getX(), this.getY(), this.getZ());
+    added = 0;
+    i = 0;
+    while (i < indices.length) {
+      if (this.addItem(mapItems[indices[i] - added])) {
+        mapItems.splice(indices[i] - added, 1);
+        added++;
+      } else {
+        break;
+      }
+      i++;
+    }
+    this._map.setItemsAt(this.getX(), this.getY(), this.getZ(), mapItems);
+    return added === indices.length;
+  },
+  dropItem: function(i) {
+    if (this._items[i]) {
+      if (this._map) {
+        this._map.addItem(this.getX(), this.getY(), this.getZ(), this._items[i]);
+      }
+      this.removeItem(i);
+    }
+  }
+};
+
 Game.PlayerTemplate = {
   character: '',
   foreground: 'white',
   maxHp: 40,
   attackValue: 10,
   sightRadius: 6,
-  mixins: [Game.Mixins.PlayerActor, Game.Mixins.Attacker, Game.Mixins.Destructible, Game.Mixins.MessageRecipient, Game.Mixins.Sight]
+  inventorySlots: 10,
+  mixins: [Game.Mixins.PlayerActor, Game.Mixins.Attacker, Game.Mixins.Destructible, Game.Mixins.InventoryHolder, Game.Mixins.MessageRecipient, Game.Mixins.Sight]
 };
 
 Game.EntityRepository = new Game.Repository('entities', Game.Entity);

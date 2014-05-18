@@ -93,7 +93,7 @@ Game.Entity.prototype.getMap = function() {
 };
 
 Game.Entity.prototype.tryMove = function(x, y, z, map) {
-  var currentTile, target, tile;
+  var currentTile, items, target, tile;
   map = this.getMap();
   tile = map.getTile(x, y, this.getZ());
   currentTile = map.getTile(this.getX(), this.getY(), this.getZ());
@@ -124,6 +124,14 @@ Game.Entity.prototype.tryMove = function(x, y, z, map) {
     return true;
   } else if (tile.isWalkable()) {
     this.setPosition(x, y, z);
+    items = this.getMap().getItemsAt(x, y, z);
+    if (items) {
+      if (items.length === 1) {
+        Game.sendMessage(this, 'You see %s.', [items[0].describeA()]);
+      } else {
+        Game.sendMessage(this, 'There are several objects here');
+      }
+    }
     return true;
   }
   return false;
