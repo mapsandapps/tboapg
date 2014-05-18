@@ -13,6 +13,7 @@ Game.PlayerTemplate =
     Game.EntityMixins.InventoryHolder
     Game.EntityMixins.MessageRecipient
     Game.EntityMixins.Sight
+    Game.EntityMixins.Equipper
   ]
 
 # Create our central entity repository
@@ -61,6 +62,8 @@ Game.BossRepository.define 'plant',
   mixins: [
     Game.EntityMixins.WanderActor
   ]
+,
+  disableRandomCreation: true
 
 Game.BossRepository.define 'moon',
   name: 'moon'
@@ -70,6 +73,8 @@ Game.BossRepository.define 'moon',
   mixins: [
     Game.EntityMixins.WanderActor
   ]
+,
+  disableRandomCreation: true
   
 Game.BossRepository.define 'cloud',
   name: 'cloud'
@@ -79,6 +84,8 @@ Game.BossRepository.define 'cloud',
   mixins: [
     Game.EntityMixins.WanderActor
   ]
+,
+  disableRandomCreation: true
   
 Game.BossRepository.define 'lock',
   name: 'lock'
@@ -88,6 +95,8 @@ Game.BossRepository.define 'lock',
   mixins: [
     Game.EntityMixins.WanderActor
   ]
+,
+  disableRandomCreation: true
   
 Game.BossRepository.define 'fire',
   name: 'fire'
@@ -97,3 +106,5 @@ Game.BossRepository.define 'fire',
   mixins: [
     Game.EntityMixins.WanderActor
   ]
+,
+  disableRandomCreation: true

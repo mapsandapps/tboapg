@@ -6,7 +6,7 @@ Game.PlayerTemplate = {
   attackValue: 10,
   sightRadius: 6,
   inventorySlots: 10,
-  mixins: [Game.EntityMixins.PlayerActor, Game.EntityMixins.Attacker, Game.EntityMixins.Destructible, Game.EntityMixins.InventoryHolder, Game.EntityMixins.MessageRecipient, Game.EntityMixins.Sight]
+  mixins: [Game.EntityMixins.PlayerActor, Game.EntityMixins.Attacker, Game.EntityMixins.Destructible, Game.EntityMixins.InventoryHolder, Game.EntityMixins.MessageRecipient, Game.EntityMixins.Sight, Game.EntityMixins.Equipper]
 };
 
 Game.EntityRepository = new Game.Repository('entities', Game.Entity);
@@ -45,6 +45,8 @@ Game.BossRepository.define('plant', {
   foreground: 'hotPink',
   maxHp: 10,
   mixins: [Game.EntityMixins.WanderActor]
+}, {
+  disableRandomCreation: true
 });
 
 Game.BossRepository.define('moon', {
@@ -53,6 +55,8 @@ Game.BossRepository.define('moon', {
   foreground: 'hotPink',
   maxHp: 10,
   mixins: [Game.EntityMixins.WanderActor]
+}, {
+  disableRandomCreation: true
 });
 
 Game.BossRepository.define('cloud', {
@@ -61,6 +65,8 @@ Game.BossRepository.define('cloud', {
   foreground: 'hotPink',
   maxHp: 10,
   mixins: [Game.EntityMixins.WanderActor]
+}, {
+  disableRandomCreation: true
 });
 
 Game.BossRepository.define('lock', {
@@ -69,6 +75,8 @@ Game.BossRepository.define('lock', {
   foreground: 'hotPink',
   maxHp: 10,
   mixins: [Game.EntityMixins.WanderActor]
+}, {
+  disableRandomCreation: true
 });
 
 Game.BossRepository.define('fire', {
@@ -77,4 +85,6 @@ Game.BossRepository.define('fire', {
   foreground: 'hotPink',
   maxHp: 10,
   mixins: [Game.EntityMixins.WanderActor]
+}, {
+  disableRandomCreation: true
 });

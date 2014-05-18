@@ -233,7 +233,7 @@ Game.Map::removeEntity = (entity) ->
 
 Game.Map::updateEntityPosition = (entity, oldX, oldY, oldZ) ->
   # delete the old key if it is the same entity and we have old positions
-  if oldX
+  if typeof oldX is 'number'
     oldKey = oldX + ',' + oldY + ',' + oldZ
     delete @_entities[oldKey]  if @_entities[oldKey] is entity
   # make sure the entity's position is within bounds

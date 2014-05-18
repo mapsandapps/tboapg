@@ -130,14 +130,13 @@ Game.Screen.playScreen = {
           newZ = this._player.getZ() - 1;
           this._player.tryMove(downLoc[newZ].x, downLoc[newZ].y, downLoc[newZ].z, this._map);
         } else if (inputData.keyCode === ROT.VK_I) {
-          if (this._player.getItems().filter(function(x) {
-            return x;
-          }).length === 0) {
-            Game.sendMessage(this._player, 'You are not carrying anything!');
-            Game.refresh();
+          this.showItemsSubScreen(Game.Screen.inventoryScreen, this._player.getItems(), 'You are not carrying anything.');
+          return;
+        } else if (inputData.keyCode === ROT.VK_W) {
+          if (inputData.shiftKey) {
+            this.showItemsSubScreen(Game.Screen.wearScreen, this._player.getItems(), 'You have nothing to wear.');
           } else {
-            Game.Screen.inventoryScreen.setup(this._player, this._player.getItems());
-            this.setSubScreen(Game.Screen.inventoryScreen);
+            this.showItemsSubScreen(Game.Screen.wieldScreen, this._player.getItems(), 'You have nothing to wield.');
           }
           return;
         } else if (inputData.keyCode === ROT.VK_COMMA) {
@@ -152,8 +151,7 @@ Game.Screen.playScreen = {
               Game.sendMessage(this._player, 'Your inventory is full! Nothing was picked up.');
             }
           } else {
-            Game.Screen.pickupScreen.setup(this._player, items);
-            this.setSubScreen(Game.Screen.pickupScreen);
+            this.showItemsSubScreen(Game.Screen.pickupScreen, items, 'There is nothing here to pick up.');
             return;
           }
         } else {
@@ -176,6 +174,14 @@ Game.Screen.playScreen = {
   setSubScreen: function(subScreen) {
     this._subScreen = subScreen;
     Game.refresh();
+  },
+  showItemsSubScreen: function(subScreen, items, emptyMessage) {
+    if (items && subScreen.setup(this._player, items) > 0) {
+      this.setSubScreen(subScreen);
+    } else {
+      Game.sendMessage(this._player, emptyMessage);
+      Game.refresh();
+    }
   }
 };
 
@@ -224,27 +230,52 @@ Game.Screen.loseScreen = {
 Game.Screen.ItemListScreen = function(template) {
   this._caption = template['caption'];
   this._okFunction = template['ok'];
+  this._isAcceptableFunction = template['isAcceptable'] || function(x) {
+    return x;
+  };
   this._canSelectItem = template['canSelect'];
   this._canSelectMultipleItems = template['canSelectMultipleItems'];
+  this._hasNoItemOption = template['hasNoItemOption'];
 };
 
 Game.Screen.ItemListScreen.prototype.setup = function(player, items) {
+  var count, that;
   this._player = player;
-  this._items = items;
+  count = 0;
+  that = this;
+  this._items = items.map(function(item) {
+    if (that._isAcceptableFunction(item)) {
+      count++;
+      return item;
+    } else {
+      return null;
+    }
+  });
   this._selectedIndices = {};
+  return count;
 };
 
 Game.Screen.ItemListScreen.prototype.render = function(display) {
-  var i, number, numbers, row, selectionState;
-  numbers = '1234567890';
+  var i, letter, letters, row, selectionState, suffix;
+  letters = 'vwxyz';
   display.drawText(0, 0, this._caption);
+  if (this._hasNoItemOption) {
+    display.drawText(0, 1, '0 - no item');
+  }
   row = 0;
   i = 0;
   while (i < this._items.length) {
     if (this._items[i]) {
-      number = numbers.substring(i, i + 1);
+      letter = letters.substring(i, i + 1);
       selectionState = (this._canSelectItem && this._canSelectMultipleItems && this._selectedIndices[i] ? '+' : '-');
-      display.drawText(0, 2 + row, number + ' ' + selectionState + ' ' + this._items[i].describe());
+      suffix = '';
+      if (this._items[i] === this._player.getArmor()) {
+        suffix = ' (wearing)';
+      }
+      if (this._items[i] === this._player.getWeapon()) {
+        suffix = ' (wielding)';
+      }
+      display.drawText(0, 2 + row, letter + ' ' + selectionState + ' ' + this._items[i].describe());
       row++;
     }
     i++;
@@ -270,8 +301,11 @@ Game.Screen.ItemListScreen.prototype.handleInput = function(inputType, inputData
       Game.Screen.playScreen.setSubScreen(undefined);
     } else if (inputData.keyCode === ROT.VK_RETURN) {
       this.executeOkFunction();
-    } else if (this._canSelectItem && inputData.keyCode >= ROT.VK_1 && inputData.keyCode <= ROT.VK_9) {
-      index = inputData.keyCode - ROT.VK_1;
+    } else if (this._canSelectItem && this._hasNoItemOption && inputData.keyCode === ROT.VK_0) {
+      this._selectedIndices = {};
+      this.executeOkFunction();
+    } else if (this._canSelectItem && inputData.keyCode >= ROT.VK_V && inputData.keyCode <= ROT.VK_Z) {
+      index = inputData.keyCode - ROT.VK_V;
       if (this._items[index]) {
         if (this._canSelectMultipleItems) {
           if (this._selectedIndices[index]) {
@@ -312,6 +346,54 @@ Game.Screen.dropScreen = new Game.Screen.ItemListScreen({
   canSelectMultipleItems: false,
   ok: function(selectedItems) {
     this._player.dropItem(Object.keys(selectedItems)[0]);
+    return true;
+  }
+});
+
+Game.Screen.wieldScreen = new Game.Screen.ItemListScreen({
+  caption: 'Choose the item you wish to wield',
+  canSelect: true,
+  canSelectMultipleItems: false,
+  hasNoItemOption: true,
+  isAcceptable: function(item) {
+    return item && item.hasMixin('Equippable') && item.isWieldable();
+  },
+  ok: function(selectedItems) {
+    var item, keys;
+    keys = Object.keys(selectedItems);
+    if (keys.length === 0) {
+      this._player.unwield();
+      Game.sendMessage(this._player, 'You are empty handed.');
+    } else {
+      item = selectedItems[keys[0]];
+      this._player.unequip(item);
+      this._player.wield(item);
+      Game.sendMessage(this._player, 'You are wielding %s.', [item.describeA()]);
+    }
+    return true;
+  }
+});
+
+Game.Screen.wearScreen = new Game.Screen.ItemListScreen({
+  caption: 'Choose the item you wish to wear',
+  canSelect: true,
+  canSelectMultipleItems: false,
+  hasNoItemOption: true,
+  isAcceptable: function(item) {
+    return item && item.hasMixin('Equippable') && item.isWearable();
+  },
+  ok: function(selectedItems) {
+    var item, keys;
+    keys = Object.keys(selectedItems);
+    if (keys.length === 0) {
+      this._player.unwield();
+      Game.sendMessage(this._player, 'You are not wearing anything.');
+    } else {
+      item = selectedItems[keys[0]];
+      this._player.unequip(item);
+      this._player.wear(item);
+      Game.sendMessage(this._player, 'You are wearing %s.', [item.describeA()]);
+    }
     return true;
   }
 });

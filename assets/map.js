@@ -216,7 +216,7 @@ Game.Map.prototype.removeEntity = function(entity) {
 
 Game.Map.prototype.updateEntityPosition = function(entity, oldX, oldY, oldZ) {
   var key, oldKey;
-  if (oldX) {
+  if (typeof oldX === 'number') {
     oldKey = oldX + ',' + oldY + ',' + oldZ;
     if (this._entities[oldKey] === entity) {
       delete this._entities[oldKey];

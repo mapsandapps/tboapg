@@ -175,17 +175,19 @@ Game.Screen.playScreen =
           newZ = @_player.getZ() - 1
           @_player.tryMove downLoc[newZ].x, downLoc[newZ].y, downLoc[newZ].z, @_map
         else if inputData.keyCode is ROT.VK_I
-          if @_player.getItems().filter((x) ->
-            x
-          ).length is 0
-
-            # if the player has no items, send a message and don't take a turn
-            Game.sendMessage @_player, 'You are not carrying anything!'
-            Game.refresh()
+          # show the inventory screen
+          @showItemsSubScreen Game.Screen.inventoryScreen, @_player.getItems(),
+            'You are not carrying anything.'
+          return
+        else if inputData.keyCode is ROT.VK_W
+          if inputData.shiftKey
+            # show the wear screen
+            @showItemsSubScreen Game.Screen.wearScreen, @_player.getItems(),
+              'You have nothing to wear.'
           else
-            # show the inventory
-            Game.Screen.inventoryScreen.setup @_player, @_player.getItems()
-            @setSubScreen Game.Screen.inventoryScreen
+            # show the wield screen
+            @showItemsSubScreen Game.Screen.wieldScreen, @_player.getItems(),
+              'You have nothing to wield.'
           return
         else if inputData.keyCode is ROT.VK_COMMA
           items = @_map.getItemsAt(@_player.getX(), @_player.getY(), @_player.getZ())
@@ -201,8 +203,8 @@ Game.Screen.playScreen =
               Game.sendMessage @_player, 'Your inventory is full! Nothing was picked up.'
           else
             # show the pickup screen if there are any items
-            Game.Screen.pickupScreen.setup @_player, items
-            @setSubScreen Game.Screen.pickupScreen
+            @showItemsSubScreen Game.Screen.pickupScreen, items,
+              'There is nothing here to pick up.'
             return
         else # not a valid key
           return
@@ -227,6 +229,15 @@ Game.Screen.playScreen =
     # refresh screen on changing subscreen
     Game.refresh()
     return
+
+  showItemsSubScreen: (subScreen, items, emptyMessage) ->
+    if items and subScreen.setup(@_player, items) > 0
+      @setSubScreen subScreen
+    else
+      Game.sendMessage @_player, emptyMessage
+      Game.refresh()
+    return
+
 
 # win screen
 Game.Screen.winScreen =
@@ -276,36 +287,60 @@ Game.Screen.ItemListScreen = (template) ->
   # set up based on the template
   @_caption = template['caption']
   @_okFunction = template['ok']
+  # by default, we use the identity function
+  @_isAcceptableFunction = template['isAcceptable'] or (x) ->
+    x
   # whether the user can select items at all
   @_canSelectItem = template['canSelect']
   # whether the user can select multiple items
   @_canSelectMultipleItems = template['canSelectMultipleItems']
+  # whether a 'no item' option should appear
+  @_hasNoItemOption = template['hasNoItemOption']
   return
 
 Game.Screen.ItemListScreen::setup = (player, items) ->
   @_player = player
   # should be called before switching to the screen
-  @_items = items
+  count = 0
+
+  # iterate over each item, keeping only acceptable ones
+  that = this
+  @_items = items.map((item) ->
+    # transform the item into null if it's not acceptable
+    if that._isAcceptableFunction(item)
+      count++
+      item
+    else
+      null
+  )
   # clean set of selected indices
   @_selectedIndices = {}
-  return
+  count
 
 Game.Screen.ItemListScreen::render = (display) ->
-  numbers = '1234567890'
+  letters = 'vwxyz'
   # render caption in top row
   display.drawText(0, 0, @_caption)
+  # render the no item row if enabled
+  display.drawText(0, 1, '0 - no item')  if @_hasNoItemOption
   row = 0
   i = 0
   while i < @_items.length
     # if we have an item, we want to render it
     if @_items[i]
-      # get number matching item's index
-      number = numbers.substring(i, i + 1)
+      # get letter matching item's index
+      letter = letters.substring(i, i + 1)
       # if we selected an item, show a +, otherwise show a - between
-      # the number and the item's name
+      # the letter and the item's name
       selectionState = (if (@_canSelectItem and @_canSelectMultipleItems and @_selectedIndices[i]) then '+' else '-')
+
+      # check if the item is worn or wielded
+      suffix = ''
+      suffix = ' (wearing)'  if @_items[i] is @_player.getArmor()
+      suffix = ' (wielding)'  if @_items[i] is @_player.getWeapon()
+
       # render at correct row and add 2
-      display.drawText 0, 2 + row, number + ' ' + selectionState + ' ' + @_items[i].describe()
+      display.drawText 0, 2 + row, letter + ' ' + selectionState + ' ' + @_items[i].describe()
       row++
     i++
   return
@@ -335,13 +370,18 @@ Game.Screen.ItemListScreen::handleInput = (inputType, inputData) ->
     # Handle pressing return when items are selected
     else if inputData.keyCode is ROT.VK_RETURN
       @executeOkFunction()
+
+    # handle pressing zero when 'no item' selection is enabled
+    else if @_canSelectItem and @_hasNoItemOption and inputData.keyCode is ROT.VK_0
+      @_selectedIndices = {}
+      @executeOkFunction()
     
     # Handle pressing a letter if we can select
-    else if @_canSelectItem and inputData.keyCode >= ROT.VK_1 and inputData.keyCode <= ROT.VK_9
+    else if @_canSelectItem and inputData.keyCode >= ROT.VK_V and inputData.keyCode <= ROT.VK_Z
       
       # Check if it maps to a valid item by subtracting 'a' from the character
       # to know what letter of the alphabet we used.
-      index = inputData.keyCode - ROT.VK_1
+      index = inputData.keyCode - ROT.VK_V
       if @_items[index]
         
         # If multiple selection is allowed, toggle the selection status, else
@@ -385,4 +425,50 @@ Game.Screen.dropScreen = new Game.Screen.ItemListScreen(
     true
 )
 
+Game.Screen.wieldScreen = new Game.Screen.ItemListScreen(
+  caption: 'Choose the item you wish to wield'
+  canSelect: true
+  canSelectMultipleItems: false
+  hasNoItemOption: true
+  isAcceptable: (item) ->
+    item and item.hasMixin('Equippable') and item.isWieldable()
+
+  ok: (selectedItems) ->
+    # check if we selected 'no item'
+    keys = Object.keys(selectedItems)
+    if keys.length is 0
+      @_player.unwield()
+      Game.sendMessage(@_player, 'You are empty handed.')
+    else
+      # make sure to unequip item first in case it is the armor
+      item = selectedItems[keys[0]]
+      @_player.unequip(item)
+      @_player.wield(item)
+      Game.sendMessage(@_player, 'You are wielding %s.', [item.describeA()])
+    return true
+)
+
+Game.Screen.wearScreen = new Game.Screen.ItemListScreen(
+  caption: 'Choose the item you wish to wear'
+  canSelect: true
+  canSelectMultipleItems: false
+  hasNoItemOption: true
+  isAcceptable: (item) ->
+    item and item.hasMixin('Equippable') and item.isWearable()
+
+  ok: (selectedItems) ->
+    # check if we selected 'no item'
+    keys = Object.keys(selectedItems)
+    if keys.length is 0
+      @_player.unwield()
+      Game.sendMessage(@_player, 'You are not wearing anything.')
+    else
+      # make sure to unequip item first in case it is the armor
+      item = selectedItems[keys[0]]
+      @_player.unequip(item)
+      @_player.wear(item)
+      Game.sendMessage(@_player, 'You are wearing %s.', [item.describeA()])
+    return true
+
+)
 

@@ -50,7 +50,12 @@ Game.EntityMixins.Attacker =
     @_attackValue = template['attackValue'] or 1
     return
   getAttackValue: ->
-    @_attackValue
+    modifier = 0
+    # armor and weapon
+    if @hasMixin(Game.EntityMixins.Equipper)
+      modifier += @getWeapon().getAttackValue()  if @getWeapon()
+      modifier += @getArmor().getAttackValue()  if @getArmor()
+    @_attackValue + modifier
   attack: (target) ->
     # if target is destructible,
     # calculate damage from attack & defense values
@@ -79,7 +84,12 @@ Game.EntityMixins.Destructible =
     @_defenseValue = template['defenseValue'] or 0
     return
   getDefenseValue: ->
-    @_defenseValue
+    modifier = 0
+    # weapon & armor
+    if @hasMixin(Game.EntityMixins.Equipper)
+      modifier += @getWeapon().getDefenseValue()  if @getWeapon()
+      modifier += @getArmor().getDefenseValue()  if @getArmor()
+    @_defenseValue + modifier
   getHp: ->
     @_hp
   getMaxHp: ->
@@ -173,6 +183,8 @@ Game.EntityMixins.InventoryHolder =
     false
 
   removeItem: (i) ->
+    # make sure we unequip item we remove
+    @unequip() @_items[i]  if @_items[i] and @hasMixin(Game.EntityMixins.Equipper)
     # clear the inventory slot
     @_items[i] = null
     return
@@ -215,6 +227,43 @@ Game.EntityMixins.InventoryHolder =
         @_map.addItem @getX(), @getY(), @getZ(), @_items[i]
       @removeItem(i)
     return
+
+Game.EntityMixins.Equipper =
+  name: 'Equipper'
+  init: (template) ->
+    @_weapon = null
+    @_armor = null
+    return
+
+  wield: (item) ->
+    @_weapon = item
+    return
+
+  unwield: ->
+    @_weapon = null
+    return
+
+  wear: (item) ->
+    @_armor = item
+    return
+
+  takeOff: ->
+    @_armor = null
+    return
+
+  getWeapon: ->
+    @_weapon
+
+  getArmor: ->
+    @_armor
+
+  unequip: (item) ->
+    # helper function to be called before getting rid of an item
+    @unwield()  if @_weapon is item
+    @takeOff()  if @_armor is item
+    return
+
+
 
 
 
