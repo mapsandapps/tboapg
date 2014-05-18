@@ -1,52 +1,17 @@
 Game.Entity = (properties) ->
   properties = properties or {}
-  # call the glyph's constructor with set of properties
-  Game.Glyph.call this, properties
+  # call the dynamic glyph's constructor with our set of properties
+  Game.DynamicGlyph.call this, properties
   # instantiate properties from passed object
-  @_name = properties['name'] or ''
   @_x = properties['x'] or 0
   @_y = properties['y'] or 0
   @_z = properties['z'] or 0
   @_map = null
-  # create an object which will keep track of the mixins
-  # attached to the entity based on the name property
-  @_attachedMixins = {}
-  # create a similar object for groups
-  @_attachedMixinGroups = {}
-  # set up the object's mixins
-  mixins = properties['mixins'] or []
-  i = 0
-  while i < mixins.length
-    # copy properties from mixin unless name or init
-    # don't override properties that already exist on entity
-    for key of mixins[i]
-      if key isnt 'init' and key isnt 'name' and not @hasOwnProperty(key)
-        this[key] = mixins[i][key]
-    # add the name of the mixin to our attached mixins
-    @_attachedMixins[mixins[i].name] = true
-
-    # if a group name is present, add it
-    @_attachedMixinGroups[mixins[i].groupName] = true  if mixins[i].groupName
-    
-    # call init function if there is one
-    if mixins[i].init
-      mixins[i].init.call this, properties
-    i++
+  @_alive = true
   return
 
-# make entities inherit all functionality from glyphs
-Game.Entity.extend Game.Glyph
-
-Game.Entity::hasMixin = (obj) ->
-  # allow passing the mixin itself or the name / group name as a string
-  if typeof obj is 'object'
-    @_attachedMixins[obj.name]
-  else
-    @_attachedMixins[obj] or @_attachedMixinGroups[obj]
-
-Game.Entity::setName = (name) ->
-  @_name = name
-  return
+# make entities inherit all functionality from dynamic glyphs
+Game.Entity.extend Game.DynamicGlyph
 
 Game.Entity::setX = (x) ->
   @_x = x
@@ -74,9 +39,6 @@ Game.Entity::setPosition = (x, y, z) ->
   @_z = z
   # if the entity is on a map, notify the map the entity has moved
   @_map.updateEntityPosition(this, oldX, oldY, oldZ)  if @_map
-
-Game.Entity::getName = ->
-  @_name
 
 Game.Entity::getX = ->
   @_x
@@ -140,3 +102,22 @@ Game.Entity::tryMove = (x, y, z, map) ->
         Game.sendMessage(this, 'There are several objects here')
     return true
   false
+
+Game.Entity::isAlive = ->
+  @_alive
+
+Game.Entity::kill = (message) ->
+  # only kill once!
+  return  unless @_alive
+  @_alive = false
+  if message
+    Game.sendMessage this, message
+  else
+    Game.sendMessage this, 'You have died!'
+
+  # check if player has died, if so call their act method to prompt the user
+  if @hasMixin(Game.EntityMixins.PlayerActor)
+    @act()
+  else
+    @getMap().removeEntity this
+  return

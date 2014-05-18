@@ -6,8 +6,10 @@ Game.EntityMixins.PlayerActor =
   name: 'PlayerActor'
   groupName: 'Actor'
   act: (overkillMessage) ->
+    return  if @_acting
+    @_acting = true
     # detect if game is over
-    if @getHp() < 1
+    unless @isAlive()
       Game.Screen.playScreen.setGameEnded true
       # send a last message to the player
       Game.sendMessage this, overkillMessage + ' You have died... Press [Enter] to continue!'
@@ -18,6 +20,7 @@ Game.EntityMixins.PlayerActor =
     @getMap().getEngine().lock()
     # clear message queue
     @clearMessages()
+    @_acting = false
     return
 
 Game.EntityMixins.FungusActor =
@@ -94,11 +97,7 @@ Game.EntityMixins.Destructible =
         @getName()
         overkillMessage
       ]
-      # check if the player died. if so, call their act method to prompt user
-      if @hasMixin(Game.EntityMixins.PlayerActor)
-        @act(overkillMessage)
-      else
-        @getMap().removeEntity this
+      @kill()
     return
 
 Game.EntityMixins.MessageRecipient = 

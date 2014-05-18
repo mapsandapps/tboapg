@@ -5,13 +5,18 @@ Game.EntityMixins.PlayerActor = {
   name: 'PlayerActor',
   groupName: 'Actor',
   act: function(overkillMessage) {
-    if (this.getHp() < 1) {
+    if (this._acting) {
+      return;
+    }
+    this._acting = true;
+    if (!this.isAlive()) {
       Game.Screen.playScreen.setGameEnded(true);
       Game.sendMessage(this, overkillMessage + ' You have died... Press [Enter] to continue!');
     }
     Game.refresh();
     this.getMap().getEngine().lock();
     this.clearMessages();
+    this._acting = false;
   }
 };
 
@@ -85,11 +90,7 @@ Game.EntityMixins.Destructible = {
     }
     if (this._hp <= 0) {
       Game.sendMessage(attacker, 'You kill the %s! %s', [this.getName(), overkillMessage]);
-      if (this.hasMixin(Game.EntityMixins.PlayerActor)) {
-        this.act(overkillMessage);
-      } else {
-        this.getMap().removeEntity(this);
-      }
+      this.kill();
     }
   }
 };
