@@ -152,7 +152,7 @@ Game.sendMessageNearby = (map, centerX, centerY, centerZ, message, args) ->
 Game.PlayerTemplate = 
   character: ''
   foreground: 'white'
-  maxHp: 2
+  maxHp: 40
   attackValue: 10
   sightRadius: 6
   mixins: [
@@ -195,4 +195,60 @@ Game.NewtTemplate =
     Game.Mixins.WanderActor
     Game.Mixins.Attacker
     Game.Mixins.Destructible
+  ]
+
+# bosses (1 per level)
+Game.FireTemplate = 
+  name: 'fire'
+  character: ''
+  foreground: 'red'
+  maxHp: 400
+  attackValue: 0
+  mixins: [
+    Game.Mixins.WanderActor
+    Game.Mixins.Attacker
+  ]
+
+Game.BugTemplate = 
+  name: 'bug'
+  character: ''
+  foreground: 'red'
+  maxHp: 400
+  attackValue: 0
+  mixins: [
+    Game.Mixins.WanderActor
+    Game.Mixins.Attacker
+  ]
+
+Game.LockTemplate =
+  name: 'lock'
+  character: ''
+  foreground: 'red'
+  maxHp: 500
+  attackValue: 0
+  mixins: [
+    Game.Mixins.WanderActor
+    Game.Mixins.Attacker
+  ]
+
+Game.CloudTemplate =
+  name: 'cloud'
+  character: ''
+  foreground: 'red'
+  maxHp: 500
+  attackValue: 0
+  mixins: [
+    Game.Mixins.WanderActor
+    Game.Mixins.Attacker
+  ]
+
+Game.MoonTemplate =
+  name: 'moon'
+  character: ''
+  foreground: 'red'
+  maxHp: 400
+  attackValue: 0
+  mixins: [
+    Game.Mixins.WanderActor
+    Game.Mixins.Attacker
   ]

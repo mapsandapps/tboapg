@@ -30,7 +30,7 @@ Game.Tile.stairsUpTile = new Game.Tile(
   character: ''
   foreground: 'goldenrod'
   walkable: true
-  blocksLight: true
+  blocksLight: false
 )
 
 Game.Tile.stairsDownTile = new Game.Tile(

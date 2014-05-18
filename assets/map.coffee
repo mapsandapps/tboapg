@@ -12,6 +12,8 @@ Game.Map = (tiles, player) ->
   @setupFov()
   # create a table that will hold the entities
   @_entities = {}
+  # create a table to hold items
+  @_items = {}
 
   # create the engine and scheduler
   @_scheduler = new ROT.Scheduler.Simple()
@@ -43,21 +45,20 @@ Game.Map = (tiles, player) ->
     )
     z++
 
-  # # add random fungi
-  # z = 0
-  # while z < @_depth
-  #   i = 0
-  #   while i < 10
-  #     @addEntityAtRandomPosition new Game.Entity(Game.FungusTemplate), z
-  #     i++
-  #   z++
-
-  # add random enemies to each floor
+  # add random enemies and bosses to each floor
   templates = [
     Game.FungusTemplate
     Game.BatTemplate
     Game.NewtTemplate
   ]
+  bosses = [
+    Game.FireTemplate
+    Game.BugTemplate
+    Game.LockTemplate
+    Game.CloudTemplate
+    Game.MoonTemplate
+  ]
+  bosses = bosses.randomize()
   z = 0
   while z < @_depth
     i = 0
@@ -67,6 +68,8 @@ Game.Map = (tiles, player) ->
       # place the entity
       @addEntityAtRandomPosition new Game.Entity(template), z
       i++
+    boss = bosses[z]
+    @addEntityAtRandomPosition new Game.Entity(boss), z
     z++
 
   # set up the explored array
@@ -233,4 +236,30 @@ Game.Map::updateEntityPosition = (entity, oldX, oldY, oldZ) ->
   @_entities[key] = entity
   return
 
+Game.Map::getItemsAt = (x, y, z) ->
+  @_items[x + ',' + y + ',' + z]
+
+Game.Map::setItemsAt = (x, y, z, items) ->
+  # if items array is empty, delete key from table
+  key = x + ',' + y + ',' + z
+  if items.length is 0
+    delete @_items[key]  if @_items[key]
+  else
+    # simply update items at that key
+    @_items[key] = items
+  return
+
+Game.Map::addItem = (x, y, z, item) ->
+  # if we already have items at that position, append item to the list of items
+  key = x + ',' + y + ',' + z
+  if @_items[key]
+    @_items[key].push(item)
+  else
+    @_items[key] = [item]
+  return
+
+Game.Map::addItemAtRandomPosition = (item, z) ->
+  position = @getRandomFloorPosition(z)
+  @addItem position.x, position.y, position.z, item
+  return
 

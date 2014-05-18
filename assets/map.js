@@ -6,7 +6,7 @@ downLoc = [];
 upLoc = [];
 
 Game.Map = function(tiles, player) {
-  var downPos, i, template, templates, upPos, z;
+  var boss, bosses, downPos, i, template, templates, upPos, z;
   this._tiles = tiles;
   this._depth = tiles.length;
   this._width = tiles[0].length;
@@ -14,6 +14,7 @@ Game.Map = function(tiles, player) {
   this._fov = [];
   this.setupFov();
   this._entities = {};
+  this._items = {};
   this._scheduler = new ROT.Scheduler.Simple();
   this._engine = new ROT.Engine(this._scheduler);
   this.addEntityAtRandomPosition(player, 0);
@@ -40,6 +41,8 @@ Game.Map = function(tiles, player) {
     z++;
   }
   templates = [Game.FungusTemplate, Game.BatTemplate, Game.NewtTemplate];
+  bosses = [Game.FireTemplate, Game.BugTemplate, Game.LockTemplate, Game.CloudTemplate, Game.MoonTemplate];
+  bosses = bosses.randomize();
   z = 0;
   while (z < this._depth) {
     i = 0;
@@ -48,6 +51,8 @@ Game.Map = function(tiles, player) {
       this.addEntityAtRandomPosition(new Game.Entity(template), z);
       i++;
     }
+    boss = bosses[z];
+    this.addEntityAtRandomPosition(new Game.Entity(boss), z);
     z++;
   }
   this._explored = new Array(this._depth);
@@ -223,4 +228,36 @@ Game.Map.prototype.updateEntityPosition = function(entity, oldX, oldY, oldZ) {
     throw new Error('Tried to add an entity at an occupied position.');
   }
   this._entities[key] = entity;
+};
+
+Game.Map.prototype.getItemsAt = function(x, y, z) {
+  return this._items[x + ',' + y + ',' + z];
+};
+
+Game.Map.prototype.setItemsAt = function(x, y, z, items) {
+  var key;
+  key = x + ',' + y + ',' + z;
+  if (items.length === 0) {
+    if (this._items[key]) {
+      delete this._items[key];
+    }
+  } else {
+    this._items[key] = items;
+  }
+};
+
+Game.Map.prototype.addItem = function(x, y, z, item) {
+  var key;
+  key = x + ',' + y + ',' + z;
+  if (this._items[key]) {
+    this._items[key].push(item);
+  } else {
+    this._items[key] = [item];
+  }
+};
+
+Game.Map.prototype.addItemAtRandomPosition = function(item, z) {
+  var position;
+  position = this.getRandomFloorPosition(z);
+  this.addItem(position.x, position.y, position.z, item);
 };

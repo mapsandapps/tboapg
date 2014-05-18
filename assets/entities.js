@@ -148,7 +148,7 @@ Game.sendMessageNearby = function(map, centerX, centerY, centerZ, message, args)
 Game.PlayerTemplate = {
   character: '',
   foreground: 'white',
-  maxHp: 2,
+  maxHp: 40,
   attackValue: 10,
   sightRadius: 6,
   mixins: [Game.Mixins.PlayerActor, Game.Mixins.Attacker, Game.Mixins.Destructible, Game.Mixins.MessageRecipient, Game.Mixins.Sight]
@@ -178,4 +178,49 @@ Game.NewtTemplate = {
   maxHp: 3,
   attackValue: 10,
   mixins: [Game.Mixins.WanderActor, Game.Mixins.Attacker, Game.Mixins.Destructible]
+};
+
+Game.FireTemplate = {
+  name: 'fire',
+  character: '',
+  foreground: 'red',
+  maxHp: 400,
+  attackValue: 0,
+  mixins: [Game.Mixins.WanderActor, Game.Mixins.Attacker]
+};
+
+Game.BugTemplate = {
+  name: 'bug',
+  character: '',
+  foreground: 'red',
+  maxHp: 400,
+  attackValue: 0,
+  mixins: [Game.Mixins.WanderActor, Game.Mixins.Attacker]
+};
+
+Game.LockTemplate = {
+  name: 'lock',
+  character: '',
+  foreground: 'red',
+  maxHp: 500,
+  attackValue: 0,
+  mixins: [Game.Mixins.WanderActor, Game.Mixins.Attacker]
+};
+
+Game.CloudTemplate = {
+  name: 'cloud',
+  character: '',
+  foreground: 'red',
+  maxHp: 500,
+  attackValue: 0,
+  mixins: [Game.Mixins.WanderActor, Game.Mixins.Attacker]
+};
+
+Game.MoonTemplate = {
+  name: 'moon',
+  character: '',
+  foreground: 'red',
+  maxHp: 400,
+  attackValue: 0,
+  mixins: [Game.Mixins.WanderActor, Game.Mixins.Attacker]
 };
