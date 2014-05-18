@@ -6,7 +6,7 @@ downLoc = [];
 upLoc = [];
 
 Game.Map = function(tiles, player) {
-  var downPos, i, upPos, z;
+  var downPos, i, item, items, upPos, z;
   this._tiles = tiles;
   this._depth = tiles.length;
   this._width = tiles[0].length;
@@ -40,6 +40,8 @@ Game.Map = function(tiles, player) {
     });
     z++;
   }
+  items = ['bug', 'sun', 'umbrella', 'key', 'extinguisher'];
+  items = items.randomize();
   z = 0;
   while (z < this._depth) {
     i = 0;
@@ -47,11 +49,8 @@ Game.Map = function(tiles, player) {
       this.addEntityAtRandomPosition(Game.EntityRepository.createRandom(), z);
       i++;
     }
-    i = 0;
-    while (i < 15) {
-      this.addItemAtRandomPosition(Game.ItemRepository.createRandom(), z);
-      i++;
-    }
+    item = items[z];
+    this.addItemAtRandomPosition(Game.ItemRepository.create(item), z);
     z++;
   }
   this._explored = new Array(this._depth);

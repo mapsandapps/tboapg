@@ -45,6 +45,15 @@ Game.Map = (tiles, player) ->
     )
     z++
 
+  # automate this
+  items = [
+    'bug'
+    'sun'
+    'umbrella'
+    'key'
+    'extinguisher'
+  ]
+  items = items.randomize()
   # Add random entities and items to each floor.
   z = 0
 
@@ -59,14 +68,9 @@ Game.Map = (tiles, player) ->
       @addEntityAtRandomPosition Game.EntityRepository.createRandom(), z
       i++
     
-    # 10 items per floor
-    i = 0
-
-    while i < 15
-      
-      # Add a random entity
-      @addItemAtRandomPosition Game.ItemRepository.createRandom(), z
-      i++
+    # 1 item per floor
+    item = items[z]
+    @addItemAtRandomPosition Game.ItemRepository.create(item), z
     z++
 
   # set up the explored array

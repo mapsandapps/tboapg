@@ -29,7 +29,7 @@ Game.Screen.playScreen =
   enter: ->
     width = Game.getScreenWidth()
     height = Game.getScreenHeight()
-    depth = 6
+    depth = 5
     
     # create map from tiles and player
     tiles = new Game.Builder(width, height, depth).getTiles()

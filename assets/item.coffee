@@ -5,7 +5,7 @@ Game.Item = (properties) ->
   Game.Glyph.call this, properties
   
   # Instantiate any properties from the passed object
-  @_name = properties["name"] or ""
+  @_name = properties['name'] or ''
   return
 
 

@@ -29,7 +29,7 @@ Game.Screen.playScreen = {
     var depth, height, tiles, width;
     width = Game.getScreenWidth();
     height = Game.getScreenHeight();
-    depth = 6;
+    depth = 5;
     tiles = new Game.Builder(width, height, depth).getTiles();
     this._player = new Game.Entity(Game.PlayerTemplate);
     this._map = new Game.Map(tiles, this._player);
