@@ -71,44 +71,47 @@ Game.Screen.playScreen =
         map.setExplored(x, y, currentDepth, true)
         return
     )
-    # render the explored map cells
+    # Render the explored map cells
     x = topLeftX
+
     while x < topLeftX + screenWidth
       y = topLeftY
+
       while y < topLeftY + screenHeight
         if map.isExplored(x, y, currentDepth)
-          # fetch the glyph for the tile and render it to the screen
-          tile = @_map.getTile(x, y, currentDepth)
-          # background becomes dark gray if tile explored but not visible
-          background = (if visibleCells[x + "," + y] or tile._walkable is false then tile.getBackground() else "#1b002e")
-          display.draw(
-            x - topLeftX
-            y - topLeftY
-            tile.getChar()
-            tile.getForeground()
-            background
-          )
+          
+          # Fetch the glyph for the tile and render it to the screen
+          # at the offset position.
+          glyph = @_map.getTile(x, y, currentDepth)
+          foreground = glyph.getForeground()
+          
+          # If we are at a cell that is in the field of vision, we need
+          # to check if there are items or entities.
+          if visibleCells[x + "," + y]
+            
+            # Check for items first, since we want to draw entities
+            # over items.
+            items = map.getItemsAt(x, y, currentDepth)
+            
+            # If we have items, we want to render the top most item
+            glyph = items[items.length - 1]  if items
+            
+            # Check if we have an entity at the position
+            glyph = map.getEntityAt(x, y, currentDepth)  if map.getEntityAt(x, y, currentDepth)
+            
+            # Update the foreground color in case our glyph changed
+            background = glyph.getBackground()
+          else if glyph._walkable is false
+            background = glyph.getBackground()
+          else
+            
+            # Since the tile was previously explored but is not 
+            # visible, we want to change the background color to
+            # dark gray.
+            background = "#1b002e"
+          display.draw x - topLeftX, y - topLeftY, glyph.getChar(), glyph.getForeground(), background
         y++
       x++
-
-    # render entities
-    entities = @_map.getEntities()
-    for key of entities
-      entity = entities[key]
-      # only render entity if it would show on screen
-      if entity.getX() >= topLeftX and 
-         entity.getY() >= topLeftY and 
-         entity.getX() < topLeftX + screenWidth and 
-         entity.getY() < topLeftY + screenHeight and
-         entity.getZ() is @_player.getZ()
-        if visibleCells[entity.getX() + ',' + entity.getY()]
-          display.draw(
-            entity.getX() - topLeftX
-            entity.getY() - topLeftY
-            entity.getChar()
-            entity.getForeground()
-            entity.getBackground()
-          )
 
     # get messages in player's queue and render
     messages = @_player.getMessages()
@@ -156,7 +159,6 @@ Game.Screen.playScreen =
         else if inputData.keyCode is ROT.VK_D
           currentZ = @_player.getZ()
           @_player.tryMove upLoc[currentZ].x, upLoc[currentZ].y, upLoc[currentZ].z, @_map
-          console.log upLoc
         else if inputData.keyCode is ROT.VK_U
           newZ = @_player.getZ() - 1
           @_player.tryMove downLoc[newZ].x, downLoc[newZ].y, downLoc[newZ].z, @_map

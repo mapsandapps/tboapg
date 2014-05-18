@@ -39,7 +39,7 @@ Game.Screen.playScreen = {
     console.log("Exited play screen.");
   },
   render: function(display) {
-    var background, currentDepth, entities, entity, i, key, map, messageY, messages, screenHeight, screenWidth, stats, tile, topLeftX, topLeftY, visibleCells, x, y;
+    var background, currentDepth, foreground, glyph, i, items, map, messageY, messages, screenHeight, screenWidth, stats, topLeftX, topLeftY, visibleCells, x, y;
     screenWidth = Game.getScreenWidth();
     screenHeight = Game.getScreenHeight();
     topLeftX = Math.max(0, this._player.getX() - (screenWidth / 2));
@@ -58,22 +58,27 @@ Game.Screen.playScreen = {
       y = topLeftY;
       while (y < topLeftY + screenHeight) {
         if (map.isExplored(x, y, currentDepth)) {
-          tile = this._map.getTile(x, y, currentDepth);
-          background = (visibleCells[x + "," + y] || tile._walkable === false ? tile.getBackground() : "#1b002e");
-          display.draw(x - topLeftX, y - topLeftY, tile.getChar(), tile.getForeground(), background);
+          glyph = this._map.getTile(x, y, currentDepth);
+          foreground = glyph.getForeground();
+          if (visibleCells[x + "," + y]) {
+            items = map.getItemsAt(x, y, currentDepth);
+            if (items) {
+              glyph = items[items.length - 1];
+            }
+            if (map.getEntityAt(x, y, currentDepth)) {
+              glyph = map.getEntityAt(x, y, currentDepth);
+            }
+            background = glyph.getBackground();
+          } else if (glyph._walkable === false) {
+            background = glyph.getBackground();
+          } else {
+            background = "#1b002e";
+          }
+          display.draw(x - topLeftX, y - topLeftY, glyph.getChar(), glyph.getForeground(), background);
         }
         y++;
       }
       x++;
-    }
-    entities = this._map.getEntities();
-    for (key in entities) {
-      entity = entities[key];
-      if (entity.getX() >= topLeftX && entity.getY() >= topLeftY && entity.getX() < topLeftX + screenWidth && entity.getY() < topLeftY + screenHeight && entity.getZ() === this._player.getZ()) {
-        if (visibleCells[entity.getX() + ',' + entity.getY()]) {
-          display.draw(entity.getX() - topLeftX, entity.getY() - topLeftY, entity.getChar(), entity.getForeground(), entity.getBackground());
-        }
-      }
     }
     messages = this._player.getMessages();
     messageY = 0;
@@ -111,7 +116,6 @@ Game.Screen.playScreen = {
         } else if (inputData.keyCode === ROT.VK_D) {
           currentZ = this._player.getZ();
           this._player.tryMove(upLoc[currentZ].x, upLoc[currentZ].y, upLoc[currentZ].z, this._map);
-          console.log(upLoc);
         } else if (inputData.keyCode === ROT.VK_U) {
           newZ = this._player.getZ() - 1;
           this._player.tryMove(downLoc[newZ].x, downLoc[newZ].y, downLoc[newZ].z, this._map);

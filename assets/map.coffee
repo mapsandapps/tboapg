@@ -45,31 +45,28 @@ Game.Map = (tiles, player) ->
     )
     z++
 
-  # add random enemies and bosses to each floor
-  templates = [
-    Game.FungusTemplate
-    Game.BatTemplate
-    Game.NewtTemplate
-  ]
-  bosses = [
-    Game.FireTemplate
-    Game.BugTemplate
-    Game.LockTemplate
-    Game.CloudTemplate
-    Game.MoonTemplate
-  ]
-  bosses = bosses.randomize()
+  # Add random entities and items to each floor.
   z = 0
+
   while z < @_depth
+    
+    # 15 entities per floor
     i = 0
-    while i < 10
-      # randomly select a template
-      template = templates[Math.floor(Math.random() * templates.length)]
-      # place the entity
-      @addEntityAtRandomPosition new Game.Entity(template), z
+
+    while i < 15
+      
+      # Add a random entity
+      @addEntityAtRandomPosition Game.EntityRepository.createRandom(), z
       i++
-    boss = bosses[z]
-    @addEntityAtRandomPosition new Game.Entity(boss), z
+    
+    # 10 items per floor
+    i = 0
+
+    while i < 15
+      
+      # Add a random entity
+      @addItemAtRandomPosition Game.ItemRepository.createRandom(), z
+      i++
     z++
 
   # set up the explored array
