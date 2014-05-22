@@ -10,9 +10,20 @@ Game.ItemRepository.define 'bug',
 ,
   disableRandomCreation: true
 
-Game.ItemRepository.define 'sun',
-  name: 'sun'
-  character: ''
+# Game.ItemRepository.define 'sun',
+#   name: 'sun'
+#   character: ''
+#   foreground: 'mediumAquaMarine'
+#   wieldable: true
+#   mixins: [
+#     Game.ItemMixins.Equippable
+#   ]
+# ,
+#   disableRandomCreation: true
+
+Game.ItemRepository.define 'like',
+  name: 'like'
+  character: ''
   foreground: 'mediumAquaMarine'
   wieldable: true
   mixins: [

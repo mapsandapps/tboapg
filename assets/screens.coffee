@@ -11,9 +11,8 @@ Game.Screen.startScreen =
     return
 
   render: (display) ->
-    display.drawText(1,1, "%c{yellow}Codename: The Best of All Possible Games")
-    display.drawText(1,3, "%c{yellow}A CoffeeScript Roguelike by Mollie Taylor")
-    display.drawText(1,5, "Press [Enter] to start!")
+    display.drawText(1,1, "%c{yellow}Five: A CoffeeScript Roguelike by Mollie Taylor")
+    display.drawText(1,3, "Press [Enter] to start!")
     return
 
   handleInput: (inputType, inputData) ->
@@ -170,10 +169,16 @@ Game.Screen.playScreen =
           @move 0, 1, 0
         else if inputData.keyCode is ROT.VK_D
           currentZ = @_player.getZ()
-          @_player.tryMove upLoc[currentZ].x, upLoc[currentZ].y, upLoc[currentZ].z, @_map
+          if currentZ >= @_map.getDepth() - 1
+            Game.sendMessage @_player, "You can't go down here!"
+          else
+            @_player.tryMove upLoc[currentZ].x, upLoc[currentZ].y, upLoc[currentZ].z, @_map
         else if inputData.keyCode is ROT.VK_U
           newZ = @_player.getZ() - 1
-          @_player.tryMove downLoc[newZ].x, downLoc[newZ].y, downLoc[newZ].z, @_map
+          if newZ > 0
+            @_player.tryMove downLoc[newZ].x, downLoc[newZ].y, newZ, @_map
+          else
+            Game.sendMessage @_player, "You can't go up here!"
         else if inputData.keyCode is ROT.VK_I
           # show the inventory screen
           @showItemsSubScreen Game.Screen.inventoryScreen, @_player.getItems(),

@@ -48,7 +48,7 @@ Game.Map = (tiles, player) ->
   # automate this
   items = [
     'bug'
-    'sun'
+    'like'
     'umbrella'
     'key'
     'extinguisher'
@@ -56,7 +56,7 @@ Game.Map = (tiles, player) ->
   items = items.randomize()
   bosses = [
     'plant'
-    'moon'
+    'dislike'
     'cloud'
     'lock'
     'fire'

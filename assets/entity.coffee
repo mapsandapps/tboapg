@@ -70,7 +70,7 @@ Game.Entity::tryMove = (x, y, z, map) ->
     unless currentTile is Game.Tile.stairsDownTile
       Game.sendMessage this, "You can't go down here!"
     else
-      @setPosition(x, y, z)
+      @setPosition x, y, z
       Game.sendMessage this, "You descend to level %d!", [z + 1]
 
   # if an entity was at the tile

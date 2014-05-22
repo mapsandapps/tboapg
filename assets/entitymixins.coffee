@@ -89,9 +89,7 @@ Game.EntityMixins.Destructible =
     @_maxHp = template['maxHp'] or 10
     @_hp = template['hp'] or @_maxHp
     @_defenseValue = template['defenseValue'] or 0
-    # console.log template
     @_weakness = template['weakness'] or 'none'
-    # console.log this
     return
   getDefenseValue: ->
     modifier = 0

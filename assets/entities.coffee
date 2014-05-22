@@ -20,7 +20,7 @@ Game.PlayerTemplate =
 Game.EntityRepository = new Game.Repository('entities', Game.Entity)
 Game.EntityRepository.define 'fungus',
   name: 'fungus'
-  character: 'F'
+  character: ' '
   foreground: 'green'
   maxHp: 10
   mixins: [
@@ -28,10 +28,10 @@ Game.EntityRepository.define 'fungus',
     Game.EntityMixins.Destructible
   ]
 
-Game.EntityRepository.define 'bat',
-  name: 'bat'
-  character: 'B'
-  foreground: 'white'
+Game.EntityRepository.define 'humanoid',
+  name: 'humanoid'
+  character: ''
+  foreground: '#a29f28'
   maxHp: 5
   attackValue: 4
   mixins: [
@@ -40,9 +40,9 @@ Game.EntityRepository.define 'bat',
     Game.EntityMixins.Destructible
   ]
 
-Game.EntityRepository.define 'newt',
-  name: 'newt'
-  character: ':'
+Game.EntityRepository.define 'robot',
+  name: 'robot'
+  character: ''
   foreground: 'yellow'
   maxHp: 3
   attackValue: 2
@@ -69,13 +69,28 @@ Game.BossRepository.define 'plant',
 ,
   disableRandomCreation: true
 
-Game.BossRepository.define 'moon',
-  name: 'moon'
-  character: ''
+# Game.BossRepository.define 'moon',
+#   name: 'moon'
+#   character: ''
+#   foreground: 'hotPink'
+#   maxHp: 500
+#   attackValue: 5
+#   weakness: 'sun'
+#   mixins: [
+#     Game.EntityMixins.WanderActor
+#     Game.EntityMixins.Attacker
+#     Game.EntityMixins.Destructible
+#   ]
+# ,
+#   disableRandomCreation: true
+
+Game.BossRepository.define 'dislike',
+  name: 'dislike'
+  character: ''
   foreground: 'hotPink'
   maxHp: 500
   attackValue: 5
-  weakness: 'sun'
+  weakness: 'like'
   mixins: [
     Game.EntityMixins.WanderActor
     Game.EntityMixins.Attacker

@@ -9,9 +9,8 @@ Game.Screen.startScreen = {
     console.log("Exited start screen.");
   },
   render: function(display) {
-    display.drawText(1, 1, "%c{yellow}Codename: The Best of All Possible Games");
-    display.drawText(1, 3, "%c{yellow}A CoffeeScript Roguelike by Mollie Taylor");
-    display.drawText(1, 5, "Press [Enter] to start!");
+    display.drawText(1, 1, "%c{yellow}Five: A CoffeeScript Roguelike by Mollie Taylor");
+    display.drawText(1, 3, "Press [Enter] to start!");
   },
   handleInput: function(inputType, inputData) {
     if (inputType === 'keydown') {
@@ -125,10 +124,18 @@ Game.Screen.playScreen = {
           this.move(0, 1, 0);
         } else if (inputData.keyCode === ROT.VK_D) {
           currentZ = this._player.getZ();
-          this._player.tryMove(upLoc[currentZ].x, upLoc[currentZ].y, upLoc[currentZ].z, this._map);
+          if (currentZ >= this._map.getDepth() - 1) {
+            Game.sendMessage(this._player, "You can't go down here!");
+          } else {
+            this._player.tryMove(upLoc[currentZ].x, upLoc[currentZ].y, upLoc[currentZ].z, this._map);
+          }
         } else if (inputData.keyCode === ROT.VK_U) {
           newZ = this._player.getZ() - 1;
-          this._player.tryMove(downLoc[newZ].x, downLoc[newZ].y, downLoc[newZ].z, this._map);
+          if (newZ > 0) {
+            this._player.tryMove(downLoc[newZ].x, downLoc[newZ].y, newZ, this._map);
+          } else {
+            Game.sendMessage(this._player, "You can't go up here!");
+          }
         } else if (inputData.keyCode === ROT.VK_I) {
           this.showItemsSubScreen(Game.Screen.inventoryScreen, this._player.getItems(), 'You are not carrying anything.');
           return;

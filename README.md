@@ -11,3 +11,22 @@ Tools used
 * [Sublime Text](http://www.sublimetext.com/)
 * [Sublime Better CoffeeScript](https://github.com/aponxi/sublime-better-coffeescript)
 
+
+To Do
+-----
+* fix bug that doesn't tell you about stairs
+	* check that it works on lowest floor
+* ~~get items and bosses to work~~
+* ~~make game winnable~~
+* help screens
+	* ~~pick up~~
+	* ~~wield~~
+	* bosses
+* ~~make bosses do damage?~~
+* ~~is it a problem that sun could be thought of as the enemy of both cloud and moon?~~
+* ~~change bat and newt (maybe change one to bug)~~
+* sometimes there's a monster on the other side of the stairs
+	* make stairs only walkable by playeractors?
+* ~~lose screen doesn't work~~
+* ~~name the game~~
+* bug: after death, negative maxhp

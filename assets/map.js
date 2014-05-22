@@ -40,9 +40,9 @@ Game.Map = function(tiles, player) {
     });
     z++;
   }
-  items = ['bug', 'sun', 'umbrella', 'key', 'extinguisher'];
+  items = ['bug', 'like', 'umbrella', 'key', 'extinguisher'];
   items = items.randomize();
-  bosses = ['plant', 'moon', 'cloud', 'lock', 'fire'];
+  bosses = ['plant', 'dislike', 'cloud', 'lock', 'fire'];
   bosses = bosses.randomize();
   z = 0;
   while (z < this._depth) {
