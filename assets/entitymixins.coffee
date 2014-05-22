@@ -5,14 +5,21 @@ Game.EntityMixins = {}
 Game.EntityMixins.PlayerActor = 
   name: 'PlayerActor'
   groupName: 'Actor'
-  act: (overkillMessage) ->
+  init: (template) ->
+    @_bossKills = template['bossKills'] or 0
+    return
+  getBossKills: ->
+    @_bossKills
+  addBossKill: ->
+    @_bossKills += 1
+  act: ->
     return  if @_acting
     @_acting = true
     # detect if game is over
     unless @isAlive()
       Game.Screen.playScreen.setGameEnded true
       # send a last message to the player
-      Game.sendMessage this, overkillMessage + ' You have died... Press [Enter] to continue!'
+      Game.sendMessage this, ' You have died... Press [Enter] to continue!'
 
     # re-render screen
     Game.refresh()
@@ -82,6 +89,9 @@ Game.EntityMixins.Destructible =
     @_maxHp = template['maxHp'] or 10
     @_hp = template['hp'] or @_maxHp
     @_defenseValue = template['defenseValue'] or 0
+    # console.log template
+    @_weakness = template['weakness'] or 'none'
+    # console.log this
     return
   getDefenseValue: ->
     modifier = 0
@@ -95,19 +105,37 @@ Game.EntityMixins.Destructible =
   getMaxHp: ->
     @_maxHp
   takeDamage: (attacker, damage) ->
-    @_hp -= damage
-    overkill = 0 - @_hp
-    if overkill > 0
-      overkillMessage = '%c{red}Overkill: ' + overkill + ' damage!' 
+    if attacker.hasMixin(Game.EntityMixins.Equipper) and attacker._weapon isnt null
+      if @_weakness is attacker.getWeapon()._name
+        damage = 500  
+        attacker.addBossKill()
+        Game.sendMessage attacker, "You have found the %s's weakness!", [
+          @getName()
+        ]
+        Game.sendMessage attacker, "You strike the %s for %s damage!", [
+          @getName()
+          damage
+        ]
+        Game.sendMessage attacker, 'You have killed %s out of 5 bosses!', [
+          attacker.getBossKills()
+        ]
+        if attacker.getBossKills() is 5
+          Game.switchScreen Game.Screen.winScreen
+      @_hp -= damage
+      # if 0 or less HP, remove from map
+      if @_hp <= 0
+        Game.sendMessage attacker, 'You kill the %s!', [
+          @getName()
+        ]
+        @kill()
     else
-      overkillMessage = ''
-    # if 0 or less HP, remove from map
-    if @_hp <= 0
-      Game.sendMessage attacker, 'You kill the %s! %s', [
-        @getName()
-        overkillMessage
-      ]
-      @kill()
+      @_hp -= damage
+      # if 0 or less HP, remove from map
+      if @_hp <= 0
+        Game.sendMessage attacker, 'You kill the %s!', [
+          @getName()
+        ]
+        @kill()
     return
 
 Game.EntityMixins.MessageRecipient = 

@@ -146,7 +146,7 @@ Game.Screen.playScreen = {
           } else if (items.length === 1) {
             item = items[0];
             if (this._player.pickupItems([0])) {
-              Game.sendMessage(this._player, 'You pick up %s.', [item.describeA()]);
+              Game.sendMessage(this._player, "You pick up %s. You can press 'w' to wield it.", [item.describeA()]);
             } else {
               Game.sendMessage(this._player, 'Your inventory is full! Nothing was picked up.');
             }
@@ -213,14 +213,8 @@ Game.Screen.loseScreen = {
     console.log("Exited lose screen.");
   },
   render: function(display) {
-    var i, _i, _len, _ref;
-    _ref = [
-      {
-        0: 23
-      }
-    ];
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      i = _ref[_i];
+    var i, _i;
+    for (i = _i = 0; _i <= 23; i = ++_i) {
       display.drawText(2, i + 1, "%b{red}You lose! :(");
     }
   },

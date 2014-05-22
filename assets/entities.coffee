@@ -58,9 +58,13 @@ Game.BossRepository.define 'plant',
   name: 'plant'
   character: ''
   foreground: 'hotPink'
-  maxHp: 10
+  maxHp: 500
+  attackValue: 5
+  weakness: 'bug'
   mixins: [
     Game.EntityMixins.WanderActor
+    Game.EntityMixins.Attacker
+    Game.EntityMixins.Destructible
   ]
 ,
   disableRandomCreation: true
@@ -69,9 +73,13 @@ Game.BossRepository.define 'moon',
   name: 'moon'
   character: ''
   foreground: 'hotPink'
-  maxHp: 10
+  maxHp: 500
+  attackValue: 5
+  weakness: 'sun'
   mixins: [
     Game.EntityMixins.WanderActor
+    Game.EntityMixins.Attacker
+    Game.EntityMixins.Destructible
   ]
 ,
   disableRandomCreation: true
@@ -80,9 +88,13 @@ Game.BossRepository.define 'cloud',
   name: 'cloud'
   character: ''
   foreground: 'hotPink'
-  maxHp: 10
+  maxHp: 500
+  attackValue: 5
+  weakness: 'umbrella'
   mixins: [
     Game.EntityMixins.WanderActor
+    Game.EntityMixins.Attacker
+    Game.EntityMixins.Destructible
   ]
 ,
   disableRandomCreation: true
@@ -91,9 +103,13 @@ Game.BossRepository.define 'lock',
   name: 'lock'
   character: ''
   foreground: 'hotPink'
-  maxHp: 10
+  maxHp: 500
+  attackValue: 5
+  weakness: 'key'
   mixins: [
     Game.EntityMixins.WanderActor
+    Game.EntityMixins.Attacker
+    Game.EntityMixins.Destructible
   ]
 ,
   disableRandomCreation: true
@@ -102,9 +118,13 @@ Game.BossRepository.define 'fire',
   name: 'fire'
   character: ''
   foreground: 'hotPink'
-  maxHp: 10
+  maxHp: 500
+  attackValue: 5
+  weakness: 'extinguisher'
   mixins: [
     Game.EntityMixins.WanderActor
+    Game.EntityMixins.Attacker
+    Game.EntityMixins.Destructible
   ]
 ,
   disableRandomCreation: true

@@ -198,7 +198,7 @@ Game.Screen.playScreen =
             # if only one item, try to pick it up
             item = items[0]
             if @_player.pickupItems([0])
-              Game.sendMessage @_player, 'You pick up %s.', [item.describeA()]
+              Game.sendMessage @_player, "You pick up %s. You can press 'w' to wield it.", [item.describeA()]
             else
               Game.sendMessage @_player, 'Your inventory is full! Nothing was picked up.'
           else
@@ -250,12 +250,10 @@ Game.Screen.winScreen =
     return
 
   render: (display) ->
-    # NOT SURE ABOUT THIS LOOP
     for i in [0..23]
       r = Math.round Math.random() * 255
       g = Math.round Math.random() * 255
       b = Math.round Math.random() * 255
-      # NOT SURE ABOUT THIS LINE
       background = ROT.Color.toRGB [r, g, b]
       display.drawText 2, i + 1, "%b{#{background}}You win!"
     return
@@ -275,8 +273,8 @@ Game.Screen.loseScreen =
     return
 
   render: (display) ->
-    for i in [0:23]
-      display.drawText 2, i+1, "%b{red}You lose! :("
+    for i in [0..23]
+      display.drawText 2, i + 1, "%b{red}You lose! :("
     return
 
   handleInput: (inputType, inputData) ->

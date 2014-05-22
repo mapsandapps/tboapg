@@ -4,14 +4,23 @@ Game.EntityMixins = {};
 Game.EntityMixins.PlayerActor = {
   name: 'PlayerActor',
   groupName: 'Actor',
-  act: function(overkillMessage) {
+  init: function(template) {
+    this._bossKills = template['bossKills'] || 0;
+  },
+  getBossKills: function() {
+    return this._bossKills;
+  },
+  addBossKill: function() {
+    return this._bossKills += 1;
+  },
+  act: function() {
     if (this._acting) {
       return;
     }
     this._acting = true;
     if (!this.isAlive()) {
       Game.Screen.playScreen.setGameEnded(true);
-      Game.sendMessage(this, overkillMessage + ' You have died... Press [Enter] to continue!');
+      Game.sendMessage(this, ' You have died... Press [Enter] to continue!');
     }
     Game.refresh();
     this.getMap().getEngine().lock();
@@ -79,6 +88,7 @@ Game.EntityMixins.Destructible = {
     this._maxHp = template['maxHp'] || 10;
     this._hp = template['hp'] || this._maxHp;
     this._defenseValue = template['defenseValue'] || 0;
+    this._weakness = template['weakness'] || 'none';
   },
   getDefenseValue: function() {
     var modifier;
@@ -100,17 +110,28 @@ Game.EntityMixins.Destructible = {
     return this._maxHp;
   },
   takeDamage: function(attacker, damage) {
-    var overkill, overkillMessage;
-    this._hp -= damage;
-    overkill = 0 - this._hp;
-    if (overkill > 0) {
-      overkillMessage = '%c{red}Overkill: ' + overkill + ' damage!';
+    if (attacker.hasMixin(Game.EntityMixins.Equipper) && attacker._weapon !== null) {
+      if (this._weakness === attacker.getWeapon()._name) {
+        damage = 500;
+        attacker.addBossKill();
+        Game.sendMessage(attacker, "You have found the %s's weakness!", [this.getName()]);
+        Game.sendMessage(attacker, "You strike the %s for %s damage!", [this.getName(), damage]);
+        Game.sendMessage(attacker, 'You have killed %s out of 5 bosses!', [attacker.getBossKills()]);
+        if (attacker.getBossKills() === 5) {
+          Game.switchScreen(Game.Screen.winScreen);
+        }
+      }
+      this._hp -= damage;
+      if (this._hp <= 0) {
+        Game.sendMessage(attacker, 'You kill the %s!', [this.getName()]);
+        this.kill();
+      }
     } else {
-      overkillMessage = '';
-    }
-    if (this._hp <= 0) {
-      Game.sendMessage(attacker, 'You kill the %s! %s', [this.getName(), overkillMessage]);
-      this.kill();
+      this._hp -= damage;
+      if (this._hp <= 0) {
+        Game.sendMessage(attacker, 'You kill the %s!', [this.getName()]);
+        this.kill();
+      }
     }
   }
 };

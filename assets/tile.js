@@ -25,7 +25,8 @@ Game.Tile.floorTile = new Game.Tile({
 });
 
 Game.Tile.wallTile = new Game.Tile({
-  background: 'black'
+  background: 'black',
+  blocksLight: true
 });
 
 Game.Tile.stairsUpTile = new Game.Tile({
