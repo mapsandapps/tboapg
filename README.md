@@ -18,10 +18,10 @@ To Do
 	* check that it works on lowest floor
 * ~~get items and bosses to work~~
 * ~~make game winnable~~
-* help screens
+* ~~help screens~~
 	* ~~pick up~~
 	* ~~wield~~
-	* bosses
+	* ~~bosses~~
 * ~~make bosses do damage?~~
 * ~~is it a problem that sun could be thought of as the enemy of both cloud and moon?~~
 * ~~change bat and newt (maybe change one to bug)~~
@@ -30,3 +30,7 @@ To Do
 * ~~lose screen doesn't work~~
 * ~~name the game~~
 * bug: after death, negative maxhp
+* make winning less abrupt (like losing)
+* ~~@clearMessages() for attacking boss~~
+* ~~bug that says you can't go up here when you can~~
+* squelch "you kill the ___ message" when killing a boss

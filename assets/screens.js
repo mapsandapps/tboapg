@@ -10,7 +10,10 @@ Game.Screen.startScreen = {
   },
   render: function(display) {
     display.drawText(1, 1, "%c{yellow}Five: A CoffeeScript Roguelike by Mollie Taylor");
-    display.drawText(1, 3, "Press [Enter] to start!");
+    display.drawText(1, 11, "There is one boss per level. Defeat them all to win.");
+    display.drawText(1, 13, "Bosses can be identified by their pink hue.");
+    display.drawText(1, 15, "Be careful! You might need to use special tools to defeat them.");
+    display.drawText(1, 25, "Press [Enter] to start!");
   },
   handleInput: function(inputType, inputData) {
     if (inputType === 'keydown') {
@@ -131,7 +134,7 @@ Game.Screen.playScreen = {
           }
         } else if (inputData.keyCode === ROT.VK_U) {
           newZ = this._player.getZ() - 1;
-          if (newZ > 0) {
+          if (newZ >= 0) {
             this._player.tryMove(downLoc[newZ].x, downLoc[newZ].y, newZ, this._map);
           } else {
             Game.sendMessage(this._player, "You can't go up here!");
@@ -201,11 +204,12 @@ Game.Screen.winScreen = {
   },
   render: function(display) {
     var b, background, g, i, r, _i;
-    for (i = _i = 0; _i <= 23; i = ++_i) {
+    for (i = _i = 2; _i <= 25; i = ++_i) {
       r = Math.round(Math.random() * 255);
       g = Math.round(Math.random() * 255);
       b = Math.round(Math.random() * 255);
       background = ROT.Color.toRGB([r, g, b]);
+      display.drawText(2, 1, "You defeated all the bosses!");
       display.drawText(2, i + 1, "%b{" + background + "}You win!");
     }
   },

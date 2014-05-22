@@ -114,6 +114,7 @@ Game.EntityMixins.Destructible = {
       if (this._weakness === attacker.getWeapon()._name) {
         damage = 500;
         attacker.addBossKill();
+        attacker.clearMessages();
         Game.sendMessage(attacker, "You have found the %s's weakness!", [this.getName()]);
         Game.sendMessage(attacker, "You strike the %s for %s damage!", [this.getName(), damage]);
         Game.sendMessage(attacker, 'You have killed %s out of 5 bosses!', [attacker.getBossKills()]);
@@ -288,4 +289,9 @@ Game.EntityMixins.Equipper = {
       this.takeOff();
     }
   }
+};
+
+Game.EntityMixins.Boss = {
+  name: 'Boss',
+  init: function(template) {}
 };

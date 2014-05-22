@@ -107,6 +107,7 @@ Game.EntityMixins.Destructible =
       if @_weakness is attacker.getWeapon()._name
         damage = 500  
         attacker.addBossKill()
+        attacker.clearMessages()
         Game.sendMessage attacker, "You have found the %s's weakness!", [
           @getName()
         ]
@@ -117,6 +118,7 @@ Game.EntityMixins.Destructible =
         Game.sendMessage attacker, 'You have killed %s out of 5 bosses!', [
           attacker.getBossKills()
         ]
+        # win condition
         if attacker.getBossKills() is 5
           Game.switchScreen Game.Screen.winScreen
       @_hp -= damage
@@ -289,7 +291,10 @@ Game.EntityMixins.Equipper =
     @takeOff()  if @_armor is item
     return
 
-
+Game.EntityMixins.Boss =
+  name: 'Boss'
+  init: (template) ->
+    return
 
 
 

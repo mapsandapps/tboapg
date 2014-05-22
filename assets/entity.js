@@ -111,7 +111,9 @@ Game.Entity.prototype.kill = function(message) {
   }
   this._alive = false;
   if (message) {
-    Game.sendMessage(this, message);
+    if (!this.hasMixin(Game.EntityMixins.Boss)) {
+      Game.sendMessage(this, message);
+    }
   } else {
     Game.sendMessage(this, 'You have died!');
   }

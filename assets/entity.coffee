@@ -111,7 +111,8 @@ Game.Entity::kill = (message) ->
   return  unless @_alive
   @_alive = false
   if message
-    Game.sendMessage this, message
+    unless @hasMixin(Game.EntityMixins.Boss)
+      Game.sendMessage this, message
   else
     Game.sendMessage this, 'You have died!'
 

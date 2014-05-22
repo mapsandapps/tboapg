@@ -46,7 +46,7 @@ Game.BossRepository.define('plant', {
   maxHp: 500,
   attackValue: 5,
   weakness: 'bug',
-  mixins: [Game.EntityMixins.WanderActor, Game.EntityMixins.Attacker, Game.EntityMixins.Destructible]
+  mixins: [Game.EntityMixins.Boss, Game.EntityMixins.WanderActor, Game.EntityMixins.Attacker, Game.EntityMixins.Destructible]
 }, {
   disableRandomCreation: true
 });
@@ -58,7 +58,7 @@ Game.BossRepository.define('dislike', {
   maxHp: 500,
   attackValue: 5,
   weakness: 'like',
-  mixins: [Game.EntityMixins.WanderActor, Game.EntityMixins.Attacker, Game.EntityMixins.Destructible]
+  mixins: [Game.EntityMixins.Boss, Game.EntityMixins.WanderActor, Game.EntityMixins.Attacker, Game.EntityMixins.Destructible]
 }, {
   disableRandomCreation: true
 });
@@ -70,7 +70,7 @@ Game.BossRepository.define('cloud', {
   maxHp: 500,
   attackValue: 5,
   weakness: 'umbrella',
-  mixins: [Game.EntityMixins.WanderActor, Game.EntityMixins.Attacker, Game.EntityMixins.Destructible]
+  mixins: [Game.EntityMixins.Boss, Game.EntityMixins.WanderActor, Game.EntityMixins.Attacker, Game.EntityMixins.Destructible]
 }, {
   disableRandomCreation: true
 });
@@ -82,7 +82,7 @@ Game.BossRepository.define('lock', {
   maxHp: 500,
   attackValue: 5,
   weakness: 'key',
-  mixins: [Game.EntityMixins.WanderActor, Game.EntityMixins.Attacker, Game.EntityMixins.Destructible]
+  mixins: [Game.EntityMixins.Boss, Game.EntityMixins.WanderActor, Game.EntityMixins.Attacker, Game.EntityMixins.Destructible]
 }, {
   disableRandomCreation: true
 });
@@ -94,7 +94,7 @@ Game.BossRepository.define('fire', {
   maxHp: 500,
   attackValue: 5,
   weakness: 'extinguisher',
-  mixins: [Game.EntityMixins.WanderActor, Game.EntityMixins.Attacker, Game.EntityMixins.Destructible]
+  mixins: [Game.EntityMixins.Boss, Game.EntityMixins.WanderActor, Game.EntityMixins.Attacker, Game.EntityMixins.Destructible]
 }, {
   disableRandomCreation: true
 });

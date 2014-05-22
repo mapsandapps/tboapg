@@ -12,7 +12,10 @@ Game.Screen.startScreen =
 
   render: (display) ->
     display.drawText(1,1, "%c{yellow}Five: A CoffeeScript Roguelike by Mollie Taylor")
-    display.drawText(1,3, "Press [Enter] to start!")
+    display.drawText(1,11, "There is one boss per level. Defeat them all to win.")
+    display.drawText(1,13, "Bosses can be identified by their pink hue.")
+    display.drawText(1,15, "Be careful! You might need to use special tools to defeat them.")
+    display.drawText(1,25, "Press [Enter] to start!")
     return
 
   handleInput: (inputType, inputData) ->
@@ -175,7 +178,7 @@ Game.Screen.playScreen =
             @_player.tryMove upLoc[currentZ].x, upLoc[currentZ].y, upLoc[currentZ].z, @_map
         else if inputData.keyCode is ROT.VK_U
           newZ = @_player.getZ() - 1
-          if newZ > 0
+          if newZ >= 0
             @_player.tryMove downLoc[newZ].x, downLoc[newZ].y, newZ, @_map
           else
             Game.sendMessage @_player, "You can't go up here!"
@@ -255,11 +258,12 @@ Game.Screen.winScreen =
     return
 
   render: (display) ->
-    for i in [0..23]
+    for i in [2..25]
       r = Math.round Math.random() * 255
       g = Math.round Math.random() * 255
       b = Math.round Math.random() * 255
       background = ROT.Color.toRGB [r, g, b]
+      display.drawText 2, 1, "You defeated all the bosses!"
       display.drawText 2, i + 1, "%b{#{background}}You win!"
     return
 

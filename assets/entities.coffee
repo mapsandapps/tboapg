@@ -62,6 +62,7 @@ Game.BossRepository.define 'plant',
   attackValue: 5
   weakness: 'bug'
   mixins: [
+    Game.EntityMixins.Boss
     Game.EntityMixins.WanderActor
     Game.EntityMixins.Attacker
     Game.EntityMixins.Destructible
@@ -92,6 +93,7 @@ Game.BossRepository.define 'dislike',
   attackValue: 5
   weakness: 'like'
   mixins: [
+    Game.EntityMixins.Boss
     Game.EntityMixins.WanderActor
     Game.EntityMixins.Attacker
     Game.EntityMixins.Destructible
@@ -107,6 +109,7 @@ Game.BossRepository.define 'cloud',
   attackValue: 5
   weakness: 'umbrella'
   mixins: [
+    Game.EntityMixins.Boss
     Game.EntityMixins.WanderActor
     Game.EntityMixins.Attacker
     Game.EntityMixins.Destructible
@@ -122,6 +125,7 @@ Game.BossRepository.define 'lock',
   attackValue: 5
   weakness: 'key'
   mixins: [
+    Game.EntityMixins.Boss
     Game.EntityMixins.WanderActor
     Game.EntityMixins.Attacker
     Game.EntityMixins.Destructible
@@ -137,6 +141,7 @@ Game.BossRepository.define 'fire',
   attackValue: 5
   weakness: 'extinguisher'
   mixins: [
+    Game.EntityMixins.Boss
     Game.EntityMixins.WanderActor
     Game.EntityMixins.Attacker
     Game.EntityMixins.Destructible
